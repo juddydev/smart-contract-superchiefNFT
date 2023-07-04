@@ -5,10 +5,12 @@ enum Side {
   Buy,
   Sell
 }
+
 enum SignatureVersion {
   Single,
   Bulk
 }
+
 enum AssetType {
   ERC721,
   ERC1155
@@ -44,4 +46,16 @@ struct Input {
   bytes extraSignature;
   SignatureVersion signatureVersion;
   uint256 blockNumber;
+}
+
+struct Auction {
+  AssetType assetType;
+  address collection;
+  uint256 tokenId;
+  address paymentToken;
+  uint256 minPrice;
+  address lastBidder;
+  uint256 bidPrice;
+  uint256 startTime;
+  uint256 endTime;
 }

@@ -14,7 +14,7 @@ import "./interfaces/IMarketplace.sol";
 import "./interfaces/IExecutionDelegate.sol";
 import "./interfaces/IPolicyManager.sol";
 import "./interfaces/IMatchingPolicy.sol";
-import {Side, SignatureVersion, AssetType, Fee, Order, Input} from "./libraries/OrderStructs.sol";
+import {Side, SignatureVersion, AssetType, Fee, Order, Input} from "./libraries/Structs.sol";
 
 /**
  * @title Marketplace
