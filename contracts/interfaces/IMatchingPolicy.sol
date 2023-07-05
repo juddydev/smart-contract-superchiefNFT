@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-import {Order, AssetType} from "../libraries/OrderStructs.sol";
+import {Order, AssetType} from "../libraries/Structs.sol";
 
 interface IMatchingPolicy {
   function canMatchMakerAsk(

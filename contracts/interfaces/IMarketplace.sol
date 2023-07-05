@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-import {Input, Order} from "../libraries/OrderStructs.sol";
+import {Input, Order} from "../libraries/Structs.sol";
 import {IExecutionDelegate} from "./IExecutionDelegate.sol";
 import {IPolicyManager} from "./IPolicyManager.sol";
 
