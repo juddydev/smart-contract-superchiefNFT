@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.9;
 
-import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import {IERC721, IERC165} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import {IERC1155} from "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
 import {SafeERC20, IERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
@@ -24,8 +24,8 @@ contract EnglishAuction is ReentrancyGuard, Ownable {
   /// @dev emit this event when auction started
   event AuctionStarted(
     bytes32 indexed id,
-    address indexed assetAddress,
-    address bidToken,
+    address indexed collection,
+    address paymentToken,
     uint256 tokenId,
     uint256 minPrice,
     uint256 startTime,
@@ -43,97 +43,155 @@ contract EnglishAuction is ReentrancyGuard, Ownable {
 
   /**
    * @notice create auction
+   * @param _collection address of collection
+   * @param _tokenId token id of nft
+   * @param _paymentToken address of bid token
+   * @param _minPrice minimum price of bidF
+   * @param _duration duration of auction
    */
-  function createAuction() external onlyOwner {
-    lastBlock = block.number;
-
-    // lock asset to auction contract
-    if (assetType == AssetType.ETH) {
-      require(msg.value == assetParam, "Auction: invalid eth amount");
-    } else if (assetType == AssetType.ERC20) {
-      IERC20(assetAddress).safeTransferFrom(msg.sender, address(this), assetParam);
-    } else if (assetType == AssetType.ERC721) {
-      IERC721(assetAddress).safeTransferFrom(msg.sender, address(this), assetParam, "");
-    } else if (assetType == AssetType.ERC1155) {
-      IERC1155(assetAddress).safeTransferFrom(msg.sender, address(this), assetParam, 1, "");
+  function createAuction(
+    address _collection,
+    uint256 _tokenId,
+    address _paymentToken,
+    uint256 _minPrice,
+    uint256 _duration
+  ) external onlyOwner {
+    AssetType assetType;
+    if (IERC165(_collection).supportsInterface(type(IERC721).interfaceId)) {
+      assetType = AssetType.ERC721;
+    } else if (IERC165(_collection).supportsInterface(type(IERC1155).interfaceId)) {
+      assetType = AssetType.ERC1155;
     } else {
-      revert("Auction: assetType is invalid");
+      revert("invalid collection address");
     }
 
-    emit AuctionStarted();
+    // calculate id of auction
+    bytes32 id = _calculateHash(_collection, _tokenId, _paymentToken, _minPrice);
+
+    auctions[id] = Auction(
+      assetType,
+      _collection,
+      _tokenId,
+      _paymentToken,
+      _minPrice,
+      address(0),
+      0,
+      block.timestamp,
+      block.timestamp + _duration,
+      msg.sender
+    );
+
+    // lock asset to auction contract
+    if (assetType == AssetType.ERC721) {
+      IERC721(_collection).safeTransferFrom(msg.sender, address(this), _tokenId, "");
+    } else {
+      IERC1155(_collection).safeTransferFrom(msg.sender, address(this), _tokenId, 1, "");
+    }
+
+    emit AuctionStarted(
+      id,
+      _collection,
+      _paymentToken,
+      _tokenId,
+      _minPrice,
+      block.timestamp,
+      block.timestamp + _duration
+    );
   }
 
   /**
-   * @notice propose new bid
+   * @notice make a new bid
    * @dev This functions changes last bid params, and release last bidder's token
    *      and locks new bidder's token
+   * @param _id id of auction
    * @param _price new bidding price
    */
-  function propose(uint256 _price) external payable nonReentrant {
-    require(lastBlock > 0, "Auction: auction not started yet");
-    require(block.number <= lastBlock + maxBidInterval, "Auction: no bids anymore");
-    require(_price > lastPrice, "Auction: bid price is low than last one");
+  function bid(bytes32 _id, uint256 _price) external payable nonReentrant {
+    require(block.timestamp < auctions[_id].endTime, "Auction: This auction already finished");
+    require(_price >= auctions[_id].minPrice, "Auction: price is low than minimum price");
+    require(_price > auctions[_id].bidPrice, "Auction: bid price is low than last one");
 
-    address previousBidder = lastBidder;
-    uint256 previousPrice = lastPrice;
+    Auction memory auction = auctions[_id];
 
-    // changes last bid params
-    lastPrice = _price;
-    lastBidder = msg.sender;
-    lastBlock = block.number;
+    address previousBidder = auction.lastBidder;
+    uint256 previousPrice = auction.bidPrice;
+
+    auction.lastBidder = msg.sender;
+    auction.bidPrice = _price;
 
     if (previousBidder != address(0)) {
       // release last bidder's token
-      if (bidToken == address(0)) {
+      if (auction.paymentToken == address(0)) {
         payable(previousBidder).transfer(previousPrice);
       }
-      IERC20(bidToken).safeTransfer(previousBidder, previousPrice);
+      IERC20(auction.paymentToken).safeTransfer(previousBidder, previousPrice);
     }
 
     // lock new bidder's token
-    if (bidToken == address(0)) {
+    if (auction.paymentToken == address(0)) {
       require(_price == msg.value, "Auction: invalid eth amount");
     } else {
-      IERC20(bidToken).safeTransferFrom(msg.sender, address(this), _price);
+      IERC20(auction.paymentToken).safeTransferFrom(msg.sender, address(this), _price);
     }
 
-    emit NewBid(msg.sender, _price);
+    emit NewBid(_id, msg.sender, _price);
   }
 
   /**
    * @notice finish auction
    * @dev This function finishs auction.
    *      Sends asset to winner and sends bid token to owner.
+   * @param _id id of auction
    */
-  function finish() external onlyOwner {
-    require(block.number > lastBlock + maxBidInterval, "Auction: auction not finished");
+  function finish(bytes32 _id) external {
+    require(block.number > auctions[_id].endTime, "Auction: auction not finished");
+    require(
+      auctions[_id].owner == msg.sender || auctions[_id].lastBidder == msg.sender,
+      "Auction: don't have permission to finish"
+    );
 
     // get asset receiver
     address assetReceiver;
-    if (lastBidder == address(0)) {
+    if (auctions[_id].lastBidder == address(0)) {
       assetReceiver = owner();
     } else {
-      assetReceiver = lastBidder;
+      assetReceiver = auctions[_id].lastBidder;
     }
 
     // sends asset to receiver
-    if (assetType == AssetType.ETH) {
-      payable(assetReceiver).transfer(assetParam);
-    } else if (assetType == AssetType.ERC20) {
-      IERC20(assetAddress).safeTransfer(assetReceiver, assetParam);
-    } else if (assetType == AssetType.ERC721) {
-      IERC721(assetAddress).safeTransferFrom(address(this), assetReceiver, assetParam);
-    } else if (assetType == AssetType.ERC1155) {
-      IERC1155(assetAddress).safeTransferFrom(address(this), assetReceiver, assetParam, 1, "");
+    if (auctions[_id].assetType == AssetType.ERC721) {
+      IERC721(auctions[_id].collection).safeTransferFrom(
+        address(this),
+        assetReceiver,
+        auctions[_id].tokenId
+      );
+    } else if (auctions[_id].assetType == AssetType.ERC1155) {
+      IERC1155(auctions[_id].collection).safeTransferFrom(
+        address(this),
+        assetReceiver,
+        auctions[_id].tokenId,
+        1,
+        ""
+      );
     }
 
     // sends bid token to owner
-    if (bidToken == address(0)) {
-      payable(owner()).transfer(lastPrice);
+    if (auctions[_id].paymentToken == address(0)) {
+      payable(auctions[_id].owner).transfer(auctions[_id].bidPrice);
     } else {
-      IERC20(bidToken).safeTransfer(owner(), lastPrice);
+      IERC20(auctions[_id].paymentToken).safeTransfer(auctions[_id].owner, auctions[_id].bidPrice);
     }
 
-    emit Finished(assetReceiver, lastPrice);
+    emit Finished(_id, assetReceiver, auctions[_id].bidPrice);
+  }
+
+  function _calculateHash(
+    address _collection,
+    uint256 _tokenId,
+    address _paymentToken,
+    uint256 _minPrice
+  ) private view returns (bytes32) {
+    return
+      keccak256(abi.encodePacked(_collection, _tokenId, _paymentToken, _minPrice, block.number));
   }
 }

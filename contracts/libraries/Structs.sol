@@ -58,4 +58,5 @@ struct Auction {
   uint256 bidPrice;
   uint256 startTime;
   uint256 endTime;
+  address owner;
 }
