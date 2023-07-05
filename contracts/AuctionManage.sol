@@ -11,13 +11,11 @@ import {ReentrancyGuard} from "./libraries/ReentrancyGuard.sol";
 import {AssetType, Auction} from "./libraries/Structs.sol";
 
 /**
- * @title English Auction Contract
+ * @title English Auction Manager Contract
  */
-contract EnglishAuction is ReentrancyGuard, Ownable {
+contract AuctionManager is ReentrancyGuard, Ownable {
   using SafeERC20 for IERC20;
 
-  /// @dev weth address
-  address public weth;
   /// @dev acutions
   mapping(bytes32 => Auction) public auctions;
 
@@ -36,10 +34,7 @@ contract EnglishAuction is ReentrancyGuard, Ownable {
   /// @dev emit this event when auction finished
   event Finished(bytes32 indexed id, address indexed winner, uint256 indexed bidPrice);
 
-  /// @param _weth weth address
-  constructor(address _weth) {
-    weth = _weth;
-  }
+  constructor() {}
 
   /**
    * @notice create auction
