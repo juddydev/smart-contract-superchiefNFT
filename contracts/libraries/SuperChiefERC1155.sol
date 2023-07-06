@@ -15,15 +15,12 @@ contract SuperChiefERC1155 is ERC1155URIStorage, ERC2981, Ownable {
   string public symbol;
   string public contractURI;
 
-  /// @dev current max token id
-  uint256 public maxId;
-
   /// @dev fires when contract uri changed
   event ContractURIChanged(string _contractURI);
   /**
    * @dev Emitted when `value` tokens of token type `id` are transferred from `from` to `to` by `operator`.
    */
-  event SuperChief_TransferSingle(
+  event SuperChiefTransferSingle(
     address indexed operator,
     address indexed from,
     address indexed to,
@@ -35,7 +32,7 @@ contract SuperChiefERC1155 is ERC1155URIStorage, ERC2981, Ownable {
    * @dev Equivalent to multiple {TransferSingle} events, where `operator`, `from` and `to` are the same for all
    * transfers.
    */
-  event SuperChief_TransferBatch(
+  event SuperChiefTransferBatch(
     address indexed operator,
     address indexed from,
     address indexed to,
@@ -126,9 +123,9 @@ contract SuperChiefERC1155 is ERC1155URIStorage, ERC2981, Ownable {
     bytes memory data
   ) internal override {
     if (ids.length == 1) {
-      emit SuperChief_TransferSingle(operator, from, to, ids[0], amounts[0]);
+      emit SuperChiefTransferSingle(operator, from, to, ids[0], amounts[0]);
     } else {
-      emit SuperChief_TransferBatch(operator, from, to, ids, amounts);
+      emit SuperChiefTransferBatch(operator, from, to, ids, amounts);
     }
   }
 }

@@ -8,11 +8,16 @@ import {SuperChiefERC1155} from "./libraries/SuperChiefERC1155.sol";
  * @dev use ERC1155URIStorage standard
  */
 contract Exhibition is SuperChiefERC1155 {
+  /// @dev current max token id
+  uint256 public maxId;
+  
   /// @dev mint count of artists
   mapping(address => uint256) public mintCount;
 
   /// @dev fires when mint count updated
   event MintCountUpdated(address indexed to, uint256 count);
+  /// @dev fires when mint count updated
+  event BatchMintCountUpdated(address[] to, uint256[] count);
 
   /**
    * @dev sets contract params
@@ -49,8 +54,10 @@ contract Exhibition is SuperChiefERC1155 {
     require(_to.length == _count.length, "Exhibition: invalid input param");
 
     for (uint256 i = 0; i < _to.length; ++i) {
-      updateMintCount(_to[i], _count[i]);
+      mintCount[_to[i]] = _count[i];
     }
+
+    emit BatchMintCountUpdated(_to, _count);
   }
 
   /**

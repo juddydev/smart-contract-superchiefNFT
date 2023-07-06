@@ -8,6 +8,9 @@ import {SuperChiefERC1155} from "./libraries/SuperChiefERC1155.sol";
  * @dev use ERC1155URIStorage standard
  */
 contract Collection is SuperChiefERC1155 {
+  /// @dev current max token id
+  uint256 public maxId;
+  
   /**
    * @dev sets contract params
    * @param _name name of collection
