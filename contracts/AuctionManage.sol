@@ -52,7 +52,7 @@ contract AuctionManager is ReentrancyGuard, ERC721Holder, ERC1155Holder, Ownable
     address _paymentToken,
     uint256 _minPrice,
     uint256 _duration
-  ) external onlyOwner {
+  ) external {
     AssetType assetType;
     if (IERC165(_collection).supportsInterface(type(IERC721).interfaceId)) {
       assetType = AssetType.ERC721;
@@ -105,7 +105,7 @@ contract AuctionManager is ReentrancyGuard, ERC721Holder, ERC1155Holder, Ownable
    */
   function bid(bytes32 _id, uint256 _price) external payable nonReentrant {
     require(block.timestamp < auctions[_id].endTime, "Auction: This auction already finished");
-    require(_price >= auctions[_id].minPrice, "Auction: price is low than minimum price");
+    require(_price >= auctions[_id].minPrice, "Auction: bid price is low than minimum price");
     require(_price > auctions[_id].bidPrice, "Auction: bid price is low than last one");
 
     Auction memory auction = auctions[_id];
@@ -115,6 +115,7 @@ contract AuctionManager is ReentrancyGuard, ERC721Holder, ERC1155Holder, Ownable
 
     auction.lastBidder = msg.sender;
     auction.bidPrice = _price;
+    auctions[_id] = auction;
 
     if (previousBidder != address(0)) {
       // release last bidder's token
@@ -141,7 +142,7 @@ contract AuctionManager is ReentrancyGuard, ERC721Holder, ERC1155Holder, Ownable
    * @param _id id of auction
    */
   function finish(bytes32 _id) external {
-    require(block.number > auctions[_id].endTime, "Auction: auction not finished");
+    require(block.timestamp > auctions[_id].endTime, "Auction: auction not finished");
     require(
       auctions[_id].owner == msg.sender || auctions[_id].lastBidder == msg.sender,
       "Auction: don't have permission to finish"
@@ -189,6 +190,8 @@ contract AuctionManager is ReentrancyGuard, ERC721Holder, ERC1155Holder, Ownable
     uint256 _minPrice
   ) private view returns (bytes32) {
     return
-      keccak256(abi.encodePacked(_collection, _tokenId, _paymentToken, _minPrice, block.number));
+      keccak256(
+        abi.encodePacked(msg.sender, _collection, _tokenId, _paymentToken, _minPrice, block.number)
+      );
   }
 }
