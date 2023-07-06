@@ -3,7 +3,9 @@
 pragma solidity ^0.8.9;
 
 import {IERC721, IERC165} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import {ERC721Holder} from "@openzeppelin/contracts/token/ERC721/utils/ERC721Holder.sol";
 import {IERC1155} from "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
+import {ERC1155Holder} from "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Holder.sol";
 import {SafeERC20, IERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
@@ -13,7 +15,7 @@ import {AssetType, Auction} from "./libraries/Structs.sol";
 /**
  * @title English Auction Manager Contract
  */
-contract AuctionManager is ReentrancyGuard, Ownable {
+contract AuctionManager is ReentrancyGuard, ERC721Holder, ERC1155Holder, Ownable {
   using SafeERC20 for IERC20;
 
   /// @dev acutions
