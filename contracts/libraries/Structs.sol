@@ -60,3 +60,9 @@ struct Auction {
   uint256 endTime;
   address owner;
 }
+
+struct Sig {
+  bytes32 r;
+  bytes32 s;
+  uint8 v;
+}

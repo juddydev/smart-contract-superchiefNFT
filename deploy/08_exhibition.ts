@@ -3,10 +3,10 @@ import { Exhibition__factory } from "../types";
 import { Ship } from "../utils";
 
 const func: DeployFunction = async (hre) => {
-  const { deploy } = await Ship.init(hre);
+  const { deploy, accounts } = await Ship.init(hre);
 
   await deploy(Exhibition__factory, {
-    args: ["Test Exhibition", "TE", ""]
+    args: ["Test Exhibition", "TE", "", accounts.signer.address],
   });
 };
 

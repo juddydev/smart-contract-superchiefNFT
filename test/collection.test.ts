@@ -5,6 +5,7 @@ import { Collection, Collection__factory, Exhibition, Exhibition__factory } from
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { deployments } from "hardhat";
 import { constants } from "ethers";
+import { arrayify, solidityKeccak256, splitSignature } from "ethers/lib/utils";
 
 chai.use(solidity);
 const { expect } = chai;
@@ -16,6 +17,7 @@ let exhibition: Exhibition;
 let deployer: SignerWithAddress;
 let alice: SignerWithAddress;
 let bob: SignerWithAddress;
+let signer: SignerWithAddress;
 
 const setup = deployments.createFixture(async (hre) => {
   ship = await Ship.init(hre);
@@ -36,6 +38,7 @@ describe("SuperChief Collection test", () => {
     deployer = accounts.deployer;
     alice = accounts.alice;
     bob = accounts.bob;
+    signer = accounts.signer;
 
     collection = await ship.connect(Collection__factory);
   });
@@ -63,6 +66,17 @@ describe("SuperChief Collection test", () => {
   });
 });
 
+const signMint = async (sender: string, to: string, tokenUri: string) => {
+  const hash = solidityKeccak256(["address", "address", "string"], [sender, to, tokenUri]);
+  const sig = await signer.signMessage(arrayify(hash));
+  const { r, s, v } = splitSignature(sig);
+  return {
+    r,
+    s,
+    v,
+  };
+};
+
 describe("SuperChief Exhibition test", () => {
   before(async () => {
     const { accounts } = await setup();
@@ -74,35 +88,13 @@ describe("SuperChief Exhibition test", () => {
     exhibition = await ship.connect(Exhibition__factory);
   });
 
-  it("mint count update test", async () => {
-    await expect(exhibition.connect(alice).updateMintCount(alice.address, 1)).to.revertedWith(
-      "Ownable: caller is not the owner",
-    );
-
-    await expect(exhibition.updateMintCount(alice.address, 1))
-      .to.emit(exhibition, "MintCountUpdated")
-      .withArgs(alice.address, 1);
-
-    await expect(exhibition.batchUpdateMintCount([alice.address, bob.address], [2])).to.revertedWith(
-      "Exhibition: invalid input param",
-    );
-
-    await expect(exhibition.batchUpdateMintCount([alice.address, bob.address], [2, 1]))
-      .to.emit(exhibition, "BatchMintCountUpdated")
-      .withArgs([alice.address, bob.address], [2, 1]);
-  });
-
   it("mint function test", async () => {
-    await expect(exhibition.mint(alice.address, "")).to.revertedWith(
-      "Exhibition: don't have mint permission",
-    );
+    const invalidSign = await signMint(deployer.address, bob.address, "");
+    await expect(exhibition.mint(alice.address, "", invalidSign)).to.revertedWith("Invalid signature");
 
-    await expect(exhibition.connect(bob).mint(alice.address, ""))
+    const validSign = await signMint(deployer.address, alice.address, "");
+    await expect(exhibition.mint(alice.address, "", validSign))
       .to.emit(exhibition, "TransferSingle")
-      .withArgs(bob.address, constants.AddressZero, alice.address, 1, 1);
-
-    await expect(exhibition.connect(bob).mint(alice.address, "")).to.revertedWith(
-      "Exhibition: don't have mint permission",
-    );
+      .withArgs(deployer.address, constants.AddressZero, alice.address, 1, 1);
   });
 });
