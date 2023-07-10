@@ -94,7 +94,7 @@ describe("SuperChief Exhibition test", () => {
 
     const validSign = await signMint(deployer.address, alice.address, "");
     await expect(exhibition.mint(alice.address, "", validSign))
-      .to.emit(exhibition, "TransferSingle")
+      .to.emit(exhibition, "SuperChiefTransferSingle")
       .withArgs(deployer.address, constants.AddressZero, alice.address, 1, 1);
   });
 });
