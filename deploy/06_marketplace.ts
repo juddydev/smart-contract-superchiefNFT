@@ -2,7 +2,9 @@ import { DeployFunction } from "hardhat-deploy/types";
 import {
   ERC1967Proxy__factory,
   ExecutionDelegate__factory,
+  MarketplaceMock__factory,
   Marketplace__factory,
+  MerkleVerifier__factory,
   PolicyManager__factory,
   WETH__factory,
 } from "../types";
@@ -12,10 +14,22 @@ import { weth } from "../configs/weth";
 const func: DeployFunction = async (hre) => {
   const { deploy, connect, accounts } = await Ship.init(hre);
 
+  const merkleVerifier = await connect(MerkleVerifier__factory);
   const executionDelegate = await connect(ExecutionDelegate__factory);
   const policyManager = await connect(PolicyManager__factory);
 
-  const implement = await connect(Marketplace__factory);
+  let implement;
+
+  if (hre.network.tags.local) {
+    implement = await deploy(MarketplaceMock__factory, {
+      aliasName: "Marketplace",
+      libraries: { MerkleVerifier: merkleVerifier.address },
+    });
+  } else {
+    implement = await deploy(Marketplace__factory, {
+      libraries: { MerkleVerifier: merkleVerifier.address },
+    });
+  }
 
   let wethAddress;
   if (hre.network.tags.test) {
@@ -24,7 +38,7 @@ const func: DeployFunction = async (hre) => {
     wethAddress = (weth as any)[hre.network.name.toLowerCase()];
   }
 
-  const initializeTransaction = await implement.populateTransaction.initialize(
+  const initializeTransaction = await implement.contract.populateTransaction.initialize(
     hre.network.config.chainId as number,
     wethAddress,
     executionDelegate.address,
@@ -45,5 +59,5 @@ const func: DeployFunction = async (hre) => {
 };
 
 export default func;
-func.dependencies = ["marketplace-implement", "execution-delegate", "policy-manager", "mocks"];
+func.dependencies = ["execution-delegate", "merkle-verifier", "policy-manager", "mocks"];
 func.tags = ["marketplace"];

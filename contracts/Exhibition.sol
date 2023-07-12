@@ -23,13 +23,15 @@ contract Exhibition is SuperChiefERC1155 {
    * @param _symbol symbol of collection
    * @param _contractURI uri of contract
    * @param _signer signer address
+   * @param _executionDelegate addres of execution delegate
    */
   constructor(
     string memory _name,
     string memory _symbol,
     string memory _contractURI,
-    address _signer
-  ) SuperChiefERC1155(_name, _symbol, _contractURI) {
+    address _signer,
+    address _executionDelegate
+  ) SuperChiefERC1155(_name, _symbol, _contractURI, _executionDelegate) {
     signer = _signer;
 
     emit SignerUpdated(signer);

@@ -10,18 +10,20 @@ import {SuperChiefERC1155} from "./libraries/SuperChiefERC1155.sol";
 contract Collection is SuperChiefERC1155 {
   /// @dev current max token id
   uint256 public maxId;
-  
+
   /**
    * @dev sets contract params
    * @param _name name of collection
    * @param _symbol symbol of collection
-   * @param _contractURI uri of contract
+   * @param _contractURI uri of contract,
+   * @param _executionDelegate address of execution delegate
    */
   constructor(
     string memory _name,
     string memory _symbol,
-    string memory _contractURI
-  ) SuperChiefERC1155(_name, _symbol, _contractURI) {}
+    string memory _contractURI,
+    address _executionDelegate
+  ) SuperChiefERC1155(_name, _symbol, _contractURI, executionDelegate) {}
 
   /**
    * @notice mints token to address by amount with tokenUri

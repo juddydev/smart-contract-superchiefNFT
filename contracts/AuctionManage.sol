@@ -8,16 +8,21 @@ import {IERC1155} from "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
 import {ERC1155Holder} from "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Holder.sol";
 import {SafeERC20, IERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
 import {ReentrancyGuard} from "./libraries/ReentrancyGuard.sol";
 import {AssetType, Auction} from "./libraries/Structs.sol";
 
+import "./interfaces/IExecutionDelegate.sol";
+
 /**
  * @title English Auction Manager Contract
  */
-contract AuctionManager is ReentrancyGuard, ERC721Holder, ERC1155Holder, Ownable {
+contract AuctionManager is ReentrancyGuard, ERC721Holder, ERC1155Holder, Ownable, UUPSUpgradeable {
   using SafeERC20 for IERC20;
 
+  /// execution delegeate
+  IExecutionDelegate public executionDelegate;
   /// @dev acutions
   mapping(bytes32 => Auction) public auctions;
 
@@ -37,6 +42,14 @@ contract AuctionManager is ReentrancyGuard, ERC721Holder, ERC1155Holder, Ownable
   event Finished(bytes32 indexed id, address indexed winner, uint256 indexed bidPrice);
 
   constructor() {}
+
+  /* Constructor (for ERC1967) */
+  function initialize(IExecutionDelegate _executionDelegate) public initializer {
+    executionDelegate = _executionDelegate;
+  }
+
+  // required by the OZ UUPS module
+  function _authorizeUpgrade(address) internal override onlyOwner {}
 
   /**
    * @notice create auction
@@ -80,9 +93,9 @@ contract AuctionManager is ReentrancyGuard, ERC721Holder, ERC1155Holder, Ownable
 
     // lock asset to auction contract
     if (assetType == AssetType.ERC721) {
-      IERC721(_collection).safeTransferFrom(msg.sender, address(this), _tokenId, "");
+      executionDelegate.transferERC721(_collection, msg.sender, address(this), _tokenId);
     } else {
-      IERC1155(_collection).safeTransferFrom(msg.sender, address(this), _tokenId, 1, "");
+      executionDelegate.transferERC1155(_collection, msg.sender, address(this), _tokenId, 1);
     }
 
     emit AuctionStarted(
@@ -158,18 +171,35 @@ contract AuctionManager is ReentrancyGuard, ERC721Holder, ERC1155Holder, Ownable
 
     // sends asset to receiver
     if (auctions[_id].assetType == AssetType.ERC721) {
-      IERC721(auctions[_id].collection).safeTransferFrom(
+      if (
+        !IERC721(auctions[_id].collection).isApprovedForAll(
+          address(this),
+          address(executionDelegate)
+        )
+      ) {
+        IERC721(auctions[_id].collection).setApprovalForAll(address(executionDelegate), true);
+      }
+      executionDelegate.transferERC721(
+        auctions[_id].collection,
         address(this),
         assetReceiver,
         auctions[_id].tokenId
       );
     } else if (auctions[_id].assetType == AssetType.ERC1155) {
-      IERC1155(auctions[_id].collection).safeTransferFrom(
+      if (
+        !IERC1155(auctions[_id].collection).isApprovedForAll(
+          address(this),
+          address(executionDelegate)
+        )
+      ) {
+        IERC1155(auctions[_id].collection).setApprovalForAll(address(executionDelegate), true);
+      }
+      executionDelegate.transferERC1155(
+        auctions[_id].collection,
         address(this),
         assetReceiver,
         auctions[_id].tokenId,
-        1,
-        ""
+        1
       );
     }
 
