@@ -42,15 +42,6 @@ contract SuperChiefERC1155 is ERC1155URIStorage, ERC2981, Ownable {
     uint256[] values
   );
 
-  /// @dev new collection added
-  event SuperChiefCollectionCreated(
-    address indexed collection,
-    string name,
-    string symbol,
-    string contractURI,
-    address owner
-  );
-
   /**
    * @dev sets contract params
    * @param _name name of collection
@@ -69,8 +60,6 @@ contract SuperChiefERC1155 is ERC1155URIStorage, ERC2981, Ownable {
     executionDelegate = _executionDelegate;
 
     setContractURI(_contractURI);
-
-    emit SuperChiefCollectionCreated(address(this), name, symbol, contractURI, msg.sender);
   }
 
   modifier onlyExecutionDelegate() {

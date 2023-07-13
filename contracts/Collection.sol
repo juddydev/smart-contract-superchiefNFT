@@ -11,6 +11,15 @@ contract Collection is SuperChiefERC1155 {
   /// @dev current max token id
   uint256 public maxId;
 
+  /// @dev new collection added
+  event SuperChiefCollectionCreated(
+    address indexed collection,
+    string name,
+    string symbol,
+    string contractURI,
+    address owner
+  );
+
   /**
    * @dev sets contract params
    * @param _name name of collection
@@ -23,7 +32,9 @@ contract Collection is SuperChiefERC1155 {
     string memory _symbol,
     string memory _contractURI,
     address _executionDelegate
-  ) SuperChiefERC1155(_name, _symbol, _contractURI, executionDelegate) {}
+  ) SuperChiefERC1155(_name, _symbol, _contractURI, _executionDelegate) {
+    emit SuperChiefCollectionCreated(address(this), name, symbol, contractURI, msg.sender);
+  }
 
   /**
    * @notice mints token to address by amount with tokenUri
