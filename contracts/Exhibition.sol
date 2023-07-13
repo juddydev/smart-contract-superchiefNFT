@@ -15,6 +15,13 @@ contract Exhibition is SuperChiefERC1155 {
   /// @dev signer address
   address public signer;
 
+  event SuperChiefExhibitonCreated(
+    address indexed exhibition,
+    string name,
+    string symbol,
+    string contractURI,
+    address owner
+  );
   event SignerUpdated(address indexed signer);
 
   /**
@@ -34,6 +41,7 @@ contract Exhibition is SuperChiefERC1155 {
   ) SuperChiefERC1155(_name, _symbol, _contractURI, _executionDelegate) {
     signer = _signer;
 
+    emit SuperChiefExhibitonCreated(address(this), _name, _symbol, _contractURI, msg.sender);
     emit SignerUpdated(signer);
   }
 
