@@ -12,6 +12,7 @@ contract Exhibition is SuperChiefERC1155 {
   /// @dev current max token id
   uint256 public maxId;
 
+  uint256 public startTime;
   /// @dev signer address
   address public signer;
 
@@ -20,6 +21,7 @@ contract Exhibition is SuperChiefERC1155 {
     string name,
     string symbol,
     string contractURI,
+    uint256 startTime,
     address owner
   );
   event SignerUpdated(address indexed signer);
@@ -29,6 +31,7 @@ contract Exhibition is SuperChiefERC1155 {
    * @param _name name of collection
    * @param _symbol symbol of collection
    * @param _contractURI uri of contract
+   * @param _startTime start time of exhibition
    * @param _signer signer address
    * @param _executionDelegate addres of execution delegate
    */
@@ -36,12 +39,21 @@ contract Exhibition is SuperChiefERC1155 {
     string memory _name,
     string memory _symbol,
     string memory _contractURI,
+    uint256 _startTime,
     address _signer,
     address _executionDelegate
   ) SuperChiefERC1155(_name, _symbol, _contractURI, _executionDelegate) {
     signer = _signer;
+    startTime = _startTime;
 
-    emit SuperChiefExhibitonCreated(address(this), _name, _symbol, _contractURI, msg.sender);
+    emit SuperChiefExhibitonCreated(
+      address(this),
+      _name,
+      _symbol,
+      _contractURI,
+      startTime,
+      msg.sender
+    );
     emit SignerUpdated(signer);
   }
 
@@ -60,6 +72,7 @@ contract Exhibition is SuperChiefERC1155 {
    */
   function mint(address to, string calldata tokenUri, Sig calldata sig) external {
     require(_validateMintSign(to, tokenUri, sig), "Invalid signature");
+    require(block.timestamp >= startTime, "Not started yet");
     maxId++;
 
     _mint(to, maxId, 1, "");
