@@ -26,6 +26,7 @@ contract Exhibition is SuperChiefERC1155 {
     uint256 tokenId,
     address owner,
     uint256 amount,
+    string tokenUri,
     string listingData
   );
   event SignerUpdated(address indexed signer);
@@ -63,14 +64,14 @@ contract Exhibition is SuperChiefERC1155 {
    * @param tokenUri uri of NFT
    * @param amount amount of NFT
    * @param sig signature of signer
-   * @param _listingData listing data
+   * @param listingData listing data
    */
   function mint(
     address to,
     uint256 amount,
     string calldata tokenUri,
     Sig calldata sig,
-    string calldata _listingData
+    string calldata listingData
   ) external {
     require(_validateMintSign(to, amount, sig), "Invalid signature");
     maxId++;
@@ -78,7 +79,7 @@ contract Exhibition is SuperChiefERC1155 {
     _mint(to, maxId, amount, "");
     _setBaseURI(tokenUri);
 
-    emit SuperChiefExhibitionNftMinted(maxId, to, amount, _listingData);
+    emit SuperChiefExhibitionNftMinted(maxId, to, amount, tokenUri, listingData);
   }
 
   /// @dev validate signer signature
