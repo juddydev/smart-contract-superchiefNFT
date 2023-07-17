@@ -7,7 +7,7 @@ const func: DeployFunction = async (hre) => {
 
   const executionDelegate = await connect(ExecutionDelegate__factory);
   await deploy(Exhibition__factory, {
-    args: ["Test Exhibition", "TE", "", 0, accounts.signer.address, executionDelegate.address],
+    args: ["Test Exhibition", "TE", "", accounts.signer.address, executionDelegate.address],
   });
 };
 
