@@ -63,7 +63,7 @@ contract SuperChiefERC1155 is ERC1155URIStorage, ERC2981, Ownable {
     setContractURI(_contractURI);
   }
 
-  modifier onlyExecutionDelegate() {
+  modifier onlyWhitelistedContract() {
     require(
       !_isContract(msg.sender) || executionDelegate.contracts(msg.sender),
       "SuperChiefCollection: invalid executor"
@@ -146,7 +146,7 @@ contract SuperChiefERC1155 is ERC1155URIStorage, ERC2981, Ownable {
     uint256[] memory ids,
     uint256[] memory amounts,
     bytes memory data
-  ) internal override onlyExecutionDelegate {
+  ) internal override onlyWhitelistedContract {
     if (ids.length == 1) {
       emit SuperChiefTransferSingle(operator, from, to, ids[0], amounts[0]);
     } else {
