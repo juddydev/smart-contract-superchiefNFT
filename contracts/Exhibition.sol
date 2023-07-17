@@ -68,20 +68,25 @@ contract Exhibition is SuperChiefERC1155 {
    * @notice mints token to address by amount with tokenUri
    * @param to owner of NFT
    * @param tokenUri uri of NFT
+   * @param amount amount of NFT
    * @param sig signature of signer
    */
-  function mint(address to, string calldata tokenUri, Sig calldata sig) external {
-    require(_validateMintSign(to, sig), "Invalid signature");
+  function mint(address to, uint256 amount, string calldata tokenUri, Sig calldata sig) external {
+    require(_validateMintSign(to, amount, sig), "Invalid signature");
     require(block.timestamp >= startTime, "Not started yet");
     maxId++;
 
-    _mint(to, maxId, 1, "");
+    _mint(to, maxId, amount, "");
     _setBaseURI(tokenUri);
   }
 
   /// @dev validate signer signature
-  function _validateMintSign(address to, Sig calldata sig) private view returns (bool) {
-    bytes32 messageHash = keccak256(abi.encodePacked(_msgSender(), to, address(this)));
+  function _validateMintSign(
+    address to,
+    uint256 amount,
+    Sig calldata sig
+  ) private view returns (bool) {
+    bytes32 messageHash = keccak256(abi.encodePacked(_msgSender(), amount, to, address(this)));
 
     bytes32 ethSignedMessageHash = keccak256(
       abi.encodePacked("\x19Ethereum Signed Message:\n32", messageHash)

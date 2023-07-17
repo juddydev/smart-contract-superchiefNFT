@@ -3,6 +3,7 @@ pragma solidity ^0.8.9;
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {ERC2981, IERC2981} from "@openzeppelin/contracts/token/common/ERC2981.sol";
 import {ERC1155URIStorage, ERC1155, IERC1155, IERC1155MetadataURI} from "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155URIStorage.sol";
+import {IExecutionDelegate} from "../interfaces/IExecutionDelegate.sol";
 
 /**
  * @title SuperChief Maketplace NFT Standard
@@ -15,7 +16,7 @@ contract SuperChiefERC1155 is ERC1155URIStorage, ERC2981, Ownable {
   string public contractURI;
 
   /// @dev address public executionDelegate
-  address public executionDelegate;
+  IExecutionDelegate public executionDelegate;
 
   /// @dev fires when contract uri changed
   event ContractURIChanged(string _contractURI);
@@ -57,14 +58,14 @@ contract SuperChiefERC1155 is ERC1155URIStorage, ERC2981, Ownable {
   ) ERC1155("") {
     name = _name;
     symbol = _symbol;
-    executionDelegate = _executionDelegate;
+    executionDelegate = IExecutionDelegate(_executionDelegate);
 
     setContractURI(_contractURI);
   }
 
   modifier onlyExecutionDelegate() {
     require(
-      !_isContract(msg.sender) || msg.sender == executionDelegate,
+      !_isContract(msg.sender) || executionDelegate.contracts(msg.sender),
       "SuperChiefCollection: invalid executor"
     );
     _;

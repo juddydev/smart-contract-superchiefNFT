@@ -2,6 +2,8 @@
 pragma solidity ^0.8.9;
 
 interface IExecutionDelegate {
+  function contracts(address to) external view returns (bool);
+
   function approveContract(address _contract) external;
 
   function denyContract(address _contract) external;

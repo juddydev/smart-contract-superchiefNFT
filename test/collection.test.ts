@@ -66,8 +66,11 @@ describe("SuperChief Collection test", () => {
   });
 });
 
-const signMint = async (sender: string, to: string, exhibition: string) => {
-  const hash = solidityKeccak256(["address", "address", "address"], [sender, to, exhibition]);
+const signMint = async (sender: string, amount: number, to: string, exhibition: string) => {
+  const hash = solidityKeccak256(
+    ["address", "uint256", "address", "address"],
+    [sender, amount, to, exhibition],
+  );
   const sig = await signer.signMessage(arrayify(hash));
   const { r, s, v } = splitSignature(sig);
   return {
@@ -89,11 +92,11 @@ describe("SuperChief Exhibition test", () => {
   });
 
   it("mint function test", async () => {
-    const invalidSign = await signMint(deployer.address, bob.address, exhibition.address);
-    await expect(exhibition.mint(alice.address, "", invalidSign)).to.revertedWith("Invalid signature");
+    const invalidSign = await signMint(deployer.address, 1, bob.address, exhibition.address);
+    await expect(exhibition.mint(alice.address, 1, "", invalidSign)).to.revertedWith("Invalid signature");
 
-    const validSign = await signMint(deployer.address, alice.address, exhibition.address);
-    await expect(exhibition.mint(alice.address, "", validSign))
+    const validSign = await signMint(deployer.address, 1, alice.address, exhibition.address);
+    await expect(exhibition.mint(alice.address, 1, "", validSign))
       .to.emit(exhibition, "SuperChiefTransferSingle")
       .withArgs(deployer.address, constants.AddressZero, alice.address, 1, 1);
   });

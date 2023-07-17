@@ -6,8 +6,6 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import {
   AuctionManager,
   AuctionManager__factory,
-  ExecutionDelegate,
-  ExecutionDelegate__factory,
   MockERC20,
   MockERC20__factory,
   MockERC721,
@@ -22,7 +20,6 @@ let ship: Ship;
 let nft: MockERC721;
 let token: MockERC20;
 let auctionManager: AuctionManager;
-let executionDelegate: ExecutionDelegate;
 
 let deployer: SignerWithAddress;
 let alice: SignerWithAddress;
@@ -52,12 +49,11 @@ describe("AuctionManager test", () => {
 
     nft = await ship.connect(MockERC721__factory);
     token = await ship.connect(MockERC20__factory);
-    executionDelegate = await ship.connect(ExecutionDelegate__factory);
     const proxy = await ship.connect("AuctionManagerProxy");
     auctionManager = await ship.connect(AuctionManager__factory, proxy.address);
 
     await nft.mint(deployer.address, 1);
-    await nft.approve(executionDelegate.address, 1);
+    await nft.approve(auctionManager.address, 1);
 
     // distribute tokens to do test
     await token.connect(deployer).transfer(alice.address, parseUnits("10"));
