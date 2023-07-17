@@ -77,7 +77,7 @@ contract Exhibition is SuperChiefERC1155 {
     maxId++;
 
     _mint(to, maxId, amount, "");
-    _setBaseURI(tokenUri);
+    _setURI(maxId, tokenUri);
 
     emit SuperChiefExhibitionNftMinted(maxId, to, amount, tokenUri, listingData);
   }

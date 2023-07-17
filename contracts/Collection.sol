@@ -45,6 +45,6 @@ contract Collection is SuperChiefERC1155 {
   function mint(address to, uint256 amount, string calldata tokenUri) external onlyOwner {
     maxId++;
     _mint(to, maxId, amount, "");
-    _setBaseURI(tokenUri);
+    _setURI(maxId, tokenUri);
   }
 }
