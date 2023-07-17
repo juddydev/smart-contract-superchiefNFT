@@ -71,7 +71,7 @@ contract Exhibition is SuperChiefERC1155 {
    * @param sig signature of signer
    */
   function mint(address to, string calldata tokenUri, Sig calldata sig) external {
-    require(_validateMintSign(to, tokenUri, sig), "Invalid signature");
+    require(_validateMintSign(to, sig), "Invalid signature");
     require(block.timestamp >= startTime, "Not started yet");
     maxId++;
 
@@ -80,12 +80,8 @@ contract Exhibition is SuperChiefERC1155 {
   }
 
   /// @dev validate signer signature
-  function _validateMintSign(
-    address to,
-    string memory tokenUri,
-    Sig calldata sig
-  ) private view returns (bool) {
-    bytes32 messageHash = keccak256(abi.encodePacked(_msgSender(), to, tokenUri));
+  function _validateMintSign(address to, Sig calldata sig) private view returns (bool) {
+    bytes32 messageHash = keccak256(abi.encodePacked(_msgSender(), to, address(this)));
 
     bytes32 ethSignedMessageHash = keccak256(
       abi.encodePacked("\x19Ethereum Signed Message:\n32", messageHash)
