@@ -69,7 +69,7 @@ contract Exhibition is SuperChiefERC1155 {
     uint256 amount,
     string calldata tokenUri,
     Sig calldata sig
-  ) external {
+  ) external returns (uint256) {
     require(_validateMintSign(to, amount, sig), "Invalid signature");
     maxId++;
 
