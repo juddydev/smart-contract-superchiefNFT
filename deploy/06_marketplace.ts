@@ -43,7 +43,7 @@ const func: DeployFunction = async (hre) => {
     wethAddress,
     executionDelegate.address,
     policyManager.address,
-    accounts.vault.address,
+    "0x608f3177A67Aa5A13b4B04f1230C0597356E9887",
     5,
   );
   const proxy = await deploy(ERC1967Proxy__factory, {
