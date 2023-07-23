@@ -115,7 +115,45 @@ contract MarketplaceMock is
     blockRange = _blockRange;
   }
 
+  function hashOrder(Input calldata order) external view returns (bytes32) {
+    return _hashOrder(order.order, nonces[order.order.trader]);
+  }
+
   /* External Functions */
+
+  /**
+   * @dev Match two orders, ensuring validity of the match, and execute all associated state transitions. Protected against reentrancy by a contract-global lock.
+   * @param sell Sell input
+   * @param buy Buy input
+   */
+  function executeTest(
+    Input calldata sell,
+    Input calldata buy
+  ) external payable nonReentrant whenOpen {
+    require(sell.order.side == Side.Sell);
+
+    bytes32 sellHash = _hashOrder(sell.order, nonces[sell.order.trader]);
+    bytes32 buyHash = _hashOrder(buy.order, nonces[buy.order.trader]);
+
+    require(validateOrderParameters(sell.order, sellHash), "Sell has invalid parameters");
+    require(validateOrderParameters(buy.order, buyHash), "Buy has invalid parameters");
+
+    require(validateSignatures(sell, sellHash), "Sell failed authorization");
+    require(validateSignatures(buy, buyHash), "Buy failed authorization");
+
+    (uint256 price, uint256 tokenId, uint256 amount, AssetType assetType) = canMatchOrders(
+      sell.order,
+      buy.order
+    );
+
+    _executeFundsTransfer(
+      sell.order.trader,
+      buy.order.trader,
+      sell.order.paymentToken,
+      sell.order.fees,
+      price
+    );
+  }
 
   /**
    * @dev Match two orders, ensuring validity of the match, and execute all associated state transitions. Protected against reentrancy by a contract-global lock.

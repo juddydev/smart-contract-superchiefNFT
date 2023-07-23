@@ -22,12 +22,7 @@ contract Exhibition is SuperChiefERC1155 {
     string contractURI,
     address owner
   );
-  event SuperChiefExhibitionNftMinted(
-    uint256 tokenId,
-    address owner,
-    uint256 amount,
-    string tokenUri
-  );
+  event SuperChiefNftMinted(uint256 tokenId, address owner, uint256 amount, string tokenUri);
   event SignerUpdated(address indexed signer);
 
   /**
@@ -76,7 +71,7 @@ contract Exhibition is SuperChiefERC1155 {
     _mint(to, maxId, amount, "");
     _setURI(maxId, tokenUri);
 
-    emit SuperChiefExhibitionNftMinted(maxId, to, amount, tokenUri);
+    emit SuperChiefNftMinted(maxId, to, amount, tokenUri);
 
     return maxId;
   }

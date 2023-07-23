@@ -19,6 +19,7 @@ contract Collection is SuperChiefERC1155 {
     string contractURI,
     address owner
   );
+  event SuperChiefNftMinted(uint256 tokenId, address owner, uint256 amount, string tokenUri);
 
   /**
    * @dev sets contract params
@@ -42,9 +43,17 @@ contract Collection is SuperChiefERC1155 {
    * @param amount amount of NFT
    * @param tokenUri uri of NFT
    */
-  function mint(address to, uint256 amount, string calldata tokenUri) external onlyOwner {
+  function mint(
+    address to,
+    uint256 amount,
+    string calldata tokenUri
+  ) external onlyOwner returns (uint256) {
     maxId++;
     _mint(to, maxId, amount, "");
     _setURI(maxId, tokenUri);
+
+    emit SuperChiefNftMinted(maxId, to, amount, tokenUri);
+
+    return maxId;
   }
 }
