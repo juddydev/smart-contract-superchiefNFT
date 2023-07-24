@@ -65,7 +65,9 @@ contract SuperChiefERC1155 is ERC1155URIStorage, ERC2981, Ownable {
 
   modifier onlyWhitelistedContract() {
     require(
-      !_isContract(msg.sender) || executionDelegate.contracts(msg.sender),
+      !_isContract(msg.sender) ||
+        msg.sender == address(executionDelegate) ||
+        executionDelegate.contracts(msg.sender),
       "SuperChiefCollection: invalid executor"
     );
     _;
