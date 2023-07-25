@@ -51,6 +51,7 @@ contract AuctionManager is ReentrancyGuard, ERC721Holder, ERC1155Holder, Ownable
    * @param _tokenId token id of nft
    * @param _paymentToken address of bid token
    * @param _minPrice minimum price of bidF
+   * @param _startTime time to start auction
    * @param _duration duration of auction
    */
   function createAuction(
@@ -58,15 +59,17 @@ contract AuctionManager is ReentrancyGuard, ERC721Holder, ERC1155Holder, Ownable
     uint256 _tokenId,
     address _paymentToken,
     uint256 _minPrice,
+    uint256 _startTime,
     uint256 _duration
   ) external {
+    require(_startTime >= block.timestamp, "Auction: invalid start time");
     AssetType assetType;
     if (IERC165(_collection).supportsInterface(type(IERC721).interfaceId)) {
       assetType = AssetType.ERC721;
     } else if (IERC165(_collection).supportsInterface(type(IERC1155).interfaceId)) {
       assetType = AssetType.ERC1155;
     } else {
-      revert("invalid collection address");
+      revert("Auction: invalid collection address");
     }
 
     // calculate id of auction
@@ -80,8 +83,8 @@ contract AuctionManager is ReentrancyGuard, ERC721Holder, ERC1155Holder, Ownable
       _minPrice,
       address(0),
       0,
-      block.timestamp,
-      block.timestamp + _duration,
+      _startTime,
+      _startTime + _duration,
       msg.sender
     );
 
@@ -98,8 +101,8 @@ contract AuctionManager is ReentrancyGuard, ERC721Holder, ERC1155Holder, Ownable
       _paymentToken,
       _tokenId,
       _minPrice,
-      block.timestamp,
-      block.timestamp + _duration
+      _startTime,
+      _startTime + _duration
     );
   }
 

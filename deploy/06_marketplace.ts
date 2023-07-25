@@ -38,14 +38,26 @@ const func: DeployFunction = async (hre) => {
     wethAddress = (weth as any)[hre.network.name.toLowerCase()];
   }
 
-  const initializeTransaction = await implement.contract.populateTransaction.initialize(
-    hre.network.config.chainId as number,
-    wethAddress,
-    executionDelegate.address,
-    policyManager.address,
-    "0x608f3177A67Aa5A13b4B04f1230C0597356E9887",
-    5,
-  );
+  let initializeTransaction;
+  if (hre.network.tags.local) {
+    initializeTransaction = await implement.contract.populateTransaction.initialize(
+      hre.network.config.chainId as number,
+      wethAddress,
+      executionDelegate.address,
+      policyManager.address,
+      accounts.vault.address,
+      5,
+    );
+  } else {
+    initializeTransaction = await implement.contract.populateTransaction.initialize(
+      hre.network.config.chainId as number,
+      wethAddress,
+      executionDelegate.address,
+      policyManager.address,
+      "0x608f3177A67Aa5A13b4B04f1230C0597356E9887",
+      5,
+    );
+  }
   const proxy = await deploy(ERC1967Proxy__factory, {
     aliasName: "MarketplaceProxy",
     args: [implement.address, initializeTransaction.data as string],

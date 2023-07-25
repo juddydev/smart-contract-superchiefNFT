@@ -1,7 +1,7 @@
 import { deployments } from "hardhat";
 import chai from "chai";
 import { solidity } from "ethereum-waffle";
-import { Ship, advanceBlockTo, advanceTimeAndBlock } from "../utils";
+import { Ship, advanceBlockTo, advanceTimeAndBlock, getTime } from "../utils";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import {
   AuctionManager,
@@ -72,8 +72,16 @@ describe("AuctionManager test", () => {
       ["address", "address", "uint256", "address", "uint256", "uint256"],
       [deployer.address, nft.address, 1, token.address, parseUnits("1"), 100],
     );
+    const current = await getTime();
     await expect(
-      auctionManager.createAuction(nft.address, 1, token.address, parseUnits("1"), 24 * 60 * 60),
+      auctionManager.createAuction(
+        nft.address,
+        1,
+        token.address,
+        parseUnits("1"),
+        current + 10,
+        24 * 60 * 60,
+      ),
     ).to.emit(auctionManager, "AuctionStarted");
 
     const auctionData = await auctionManager.auctions(auctionId);
@@ -120,7 +128,7 @@ describe("AuctionManager test", () => {
   it("finish auction", async () => {
     await expect(auctionManager.finish(auctionId)).to.revertedWith("Auction: auction not finished");
 
-    await advanceTimeAndBlock(24 * 60 * 60);
+    await advanceTimeAndBlock(24 * 60 * 60 + 10);
     await expect(auctionManager.connect(alice).finish(auctionId)).to.revertedWith(
       "Auction: don't have permission to finish",
     );
