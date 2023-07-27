@@ -131,8 +131,9 @@ contract AuctionManager is ReentrancyGuard, ERC721Holder, ERC1155Holder, Ownable
       // release last bidder's token
       if (auction.paymentToken == address(0)) {
         payable(previousBidder).transfer(previousPrice);
+      } else {
+        IERC20(auction.paymentToken).safeTransfer(previousBidder, previousPrice);
       }
-      IERC20(auction.paymentToken).safeTransfer(previousBidder, previousPrice);
     }
 
     // lock new bidder's token
