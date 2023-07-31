@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-import {SuperChiefERC1155} from "./libraries/SuperChiefERC1155.sol";
-import {Sig} from "./libraries/Structs.sol";
+import {SuperChiefERC1155} from "../libraries/SuperChiefERC1155.sol";
+import {Sig} from "../libraries/Structs.sol";
 
 /**
  * @title SuperChief Exhibition contract
  * @dev use ERC1155URIStorage standard
  */
-contract Exhibition is SuperChiefERC1155 {
+contract ERC1155Exhibition is SuperChiefERC1155 {
   /// @dev current max token id
   uint256 public maxId;
 

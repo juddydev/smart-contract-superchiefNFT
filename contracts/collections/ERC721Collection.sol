@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-import {SuperChiefERC1155} from "./libraries/SuperChiefERC1155.sol";
+import {SuperChiefERC721} from "../libraries/SuperChiefERC721.sol";
 
 /**
  * @title SuperChief Maketplace NFT Collection
- * @dev use ERC1155URIStorage standard
+ * @dev use ERC721URIStorage standard
  */
-contract Collection is SuperChiefERC1155 {
+contract ERC721Collection is SuperChiefERC721 {
   /// @dev current max token id
   uint256 public maxId;
 
@@ -33,26 +33,21 @@ contract Collection is SuperChiefERC1155 {
     string memory _symbol,
     string memory _contractURI,
     address _executionDelegate
-  ) SuperChiefERC1155(_name, _symbol, _contractURI, _executionDelegate) {
-    emit SuperChiefCollectionCreated(address(this), name, symbol, contractURI, msg.sender);
+  ) SuperChiefERC721(_name, _symbol, _contractURI, _executionDelegate) {
+    emit SuperChiefCollectionCreated(address(this), _name, _symbol, _contractURI, msg.sender);
   }
 
   /**
    * @notice mints token to address by amount with tokenUri
    * @param to owner of NFT
-   * @param amount amount of NFT
    * @param tokenUri uri of NFT
    */
-  function mint(
-    address to,
-    uint256 amount,
-    string calldata tokenUri
-  ) external onlyOwner returns (uint256) {
+  function mint(address to, string calldata tokenUri) external onlyOwner returns (uint256) {
     maxId++;
-    _mint(to, maxId, amount, "");
-    _setURI(maxId, tokenUri);
+    _mint(to, maxId);
+    _setTokenURI(maxId, tokenUri);
 
-    emit SuperChiefNftMinted(maxId, to, amount, tokenUri);
+    emit SuperChiefNftMinted(maxId, to, 1, tokenUri);
 
     return maxId;
   }

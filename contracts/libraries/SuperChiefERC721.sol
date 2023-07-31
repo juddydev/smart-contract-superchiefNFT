@@ -3,17 +3,15 @@ pragma solidity ^0.8.9;
 
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {ERC2981, IERC2981} from "@openzeppelin/contracts/token/common/ERC2981.sol";
-import {ERC1155URIStorage, ERC1155, IERC1155, IERC1155MetadataURI} from "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155URIStorage.sol";
+import {ERC721URIStorage, ERC721, IERC721, IERC721Metadata} from "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import {IExecutionDelegate} from "../interfaces/IExecutionDelegate.sol";
 
 /**
  * @title SuperChief Maketplace NFT Standard
- * @dev use ERC1155URIStorage standard
+ * @dev use ERC721URIStorage standard
  */
-contract SuperChiefERC1155 is ERC1155URIStorage, ERC2981, Ownable {
+contract SuperChiefERC721 is ERC721URIStorage, ERC2981, Ownable {
   /// @dev collection params
-  string public name;
-  string public symbol;
   string public contractURI;
 
   /// @dev address public executionDelegate
@@ -25,23 +23,10 @@ contract SuperChiefERC1155 is ERC1155URIStorage, ERC2981, Ownable {
    * @dev Emitted when `value` tokens of token type `id` are transferred from `from` to `to` by `operator`.
    */
   event SuperChiefTransferSingle(
-    address indexed operator,
     address indexed from,
     address indexed to,
-    uint256 id,
-    uint256 value
-  );
-
-  /**
-   * @dev Equivalent to multiple {SuperChief} events, where `operator`, `from` and `to` are the same for all
-   * transfers.
-   */
-  event SuperChiefTransferBatch(
-    address indexed operator,
-    address indexed from,
-    address indexed to,
-    uint256[] ids,
-    uint256[] values
+    uint256 firstTokenId,
+    uint256 batchSize
   );
 
   /**
@@ -56,9 +41,7 @@ contract SuperChiefERC1155 is ERC1155URIStorage, ERC2981, Ownable {
     string memory _symbol,
     string memory _contractURI,
     address _executionDelegate
-  ) ERC1155("") {
-    name = _name;
-    symbol = _symbol;
+  ) ERC721(_name, _symbol) {
     executionDelegate = IExecutionDelegate(_executionDelegate);
 
     setContractURI(_contractURI);
@@ -87,10 +70,10 @@ contract SuperChiefERC1155 is ERC1155URIStorage, ERC2981, Ownable {
    */
   function supportsInterface(
     bytes4 interfaceId
-  ) public view virtual override(ERC2981, ERC1155) returns (bool) {
+  ) public view virtual override(ERC2981, ERC721URIStorage) returns (bool) {
     return
-      interfaceId == type(IERC1155).interfaceId ||
-      interfaceId == type(IERC1155MetadataURI).interfaceId ||
+      interfaceId == type(IERC721).interfaceId ||
+      interfaceId == type(IERC721Metadata).interfaceId ||
       interfaceId == type(IERC2981).interfaceId ||
       super.supportsInterface(interfaceId);
   }
@@ -143,17 +126,11 @@ contract SuperChiefERC1155 is ERC1155URIStorage, ERC2981, Ownable {
   }
 
   function _beforeTokenTransfer(
-    address operator,
     address from,
     address to,
-    uint256[] memory ids,
-    uint256[] memory amounts,
-    bytes memory data
+    uint256 firstTokenId,
+    uint256 batchSize
   ) internal override onlyWhitelistedContract {
-    if (ids.length == 1) {
-      emit SuperChiefTransferSingle(operator, from, to, ids[0], amounts[0]);
-    } else {
-      emit SuperChiefTransferBatch(operator, from, to, ids, amounts);
-    }
+    emit SuperChiefTransferSingle(from, to, firstTokenId, batchSize);
   }
 }
