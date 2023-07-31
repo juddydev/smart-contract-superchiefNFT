@@ -1,7 +1,12 @@
 import chai from "chai";
 import { solidity } from "ethereum-waffle";
 import { Ship } from "../utils";
-import { Collection, Collection__factory, Exhibition, Exhibition__factory } from "../types";
+import {
+  ERC1155Collection,
+  ERC1155Collection__factory,
+  ERC1155Exhibition,
+  ERC1155Exhibition__factory,
+} from "../types";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { deployments } from "hardhat";
 import { constants } from "ethers";
@@ -11,8 +16,8 @@ chai.use(solidity);
 const { expect } = chai;
 
 let ship: Ship;
-let collection: Collection;
-let exhibition: Exhibition;
+let collection: ERC1155Collection;
+let exhibition: ERC1155Exhibition;
 
 let deployer: SignerWithAddress;
 let alice: SignerWithAddress;
@@ -40,7 +45,7 @@ describe("SuperChief Collection test", () => {
     bob = accounts.bob;
     signer = accounts.signer;
 
-    collection = await ship.connect(Collection__factory);
+    collection = await ship.connect(ERC1155Collection__factory);
   });
 
   it("contract uri test", async () => {
@@ -88,7 +93,7 @@ describe("SuperChief Exhibition test", () => {
     alice = accounts.alice;
     bob = accounts.bob;
 
-    exhibition = await ship.connect(Exhibition__factory);
+    exhibition = await ship.connect(ERC1155Exhibition__factory);
   });
 
   it("mint function test", async () => {
