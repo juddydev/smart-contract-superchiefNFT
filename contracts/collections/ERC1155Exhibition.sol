@@ -58,18 +58,24 @@ contract ERC1155Exhibition is SuperChiefERC1155 {
    * @param tokenUri uri of NFT
    * @param amount amount of NFT
    * @param sig signature of signer
+   * @param feeRate fee rate
+   * @param receiver fee receiver address
    */
   function mint(
     address to,
     uint256 amount,
     string calldata tokenUri,
-    Sig calldata sig
+    Sig calldata sig,
+    uint96 feeRate,
+    address receiver
   ) external returns (uint256) {
     require(_validateMintSign(to, amount, sig), "Invalid signature");
+    require(feeRate <= 1800, "SuperChief: creator fee must be less than 18%");
     maxId++;
 
     _mint(to, maxId, amount, "");
     _setURI(maxId, tokenUri);
+    _setTokenRoyalty(maxId, receiver, feeRate);
 
     emit SuperChiefNftMinted(maxId, to, amount, tokenUri);
 

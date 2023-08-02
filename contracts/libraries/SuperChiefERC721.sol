@@ -88,43 +88,6 @@ contract SuperChiefERC721 is ERC721URIStorage, ERC2981, Ownable {
     emit ContractURIChanged(_contractURI);
   }
 
-  /// @dev royalty functions
-  /**
-   * @notice set royalty settings
-   * @param receiver fee receiver
-   * @param feeNumerator fee numerator
-   */
-  function setDefaultRoyalty(address receiver, uint96 feeNumerator) external onlyOwner {
-    _setDefaultRoyalty(receiver, feeNumerator);
-  }
-
-  /**
-   * @notice Removes default royalty information.
-   */
-  function deleteDefaultRoyalty() external onlyOwner {
-    _deleteDefaultRoyalty();
-  }
-
-  /**
-   * @notice Sets the royalty information for a specific token id, overriding the global default.
-   * @param receiver receiver of fee
-   * @param feeNumerator fee numerator.
-   */
-  function setTokenRoyalty(
-    uint256 tokenId,
-    address receiver,
-    uint96 feeNumerator
-  ) external onlyOwner {
-    _setTokenRoyalty(tokenId, receiver, feeNumerator);
-  }
-
-  /**
-   * @notice Resets royalty information for the token id back to the global default.
-   */
-  function resetTokenRoyalty(uint256 tokenId) external onlyOwner {
-    _resetTokenRoyalty(tokenId);
-  }
-
   function _beforeTokenTransfer(
     address from,
     address to,

@@ -61,11 +61,11 @@ describe("SuperChief Collection test", () => {
   });
 
   it("mint functionality test", async () => {
-    await expect(collection.connect(alice).mint(alice.address, 1, "")).to.revertedWith(
+    await expect(collection.connect(alice).mint(alice.address, 1, "", 100, alice.address)).to.revertedWith(
       "Ownable: caller is not the owner",
     );
 
-    await expect(collection.mint(alice.address, 1, ""))
+    await expect(collection.mint(alice.address, 1, "", 100, alice.address))
       .to.emit(collection, "SuperChiefTransferSingle")
       .withArgs(deployer.address, constants.AddressZero, alice.address, 1, 1);
   });
@@ -98,10 +98,12 @@ describe("SuperChief Exhibition test", () => {
 
   it("mint function test", async () => {
     const invalidSign = await signMint(deployer.address, 1, bob.address, exhibition.address);
-    await expect(exhibition.mint(alice.address, 1, "", invalidSign)).to.revertedWith("Invalid signature");
+    await expect(exhibition.mint(alice.address, 1, "", invalidSign, 100, alice.address)).to.revertedWith(
+      "Invalid signature",
+    );
 
     const validSign = await signMint(deployer.address, 1, alice.address, exhibition.address);
-    await expect(exhibition.mint(alice.address, 1, "", validSign))
+    await expect(exhibition.mint(alice.address, 1, "", validSign, 100, alice.address))
       .to.emit(exhibition, "SuperChiefTransferSingle")
       .withArgs(deployer.address, constants.AddressZero, alice.address, 1, 1);
   });

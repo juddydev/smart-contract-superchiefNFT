@@ -57,13 +57,23 @@ contract ERC721Exhibition is SuperChiefERC721 {
    * @param to owner of NFT
    * @param tokenUri uri of NFT
    * @param sig signature of signer
+   * @param feeRate fee rate
+   * @param receiver fee receiver address
    */
-  function mint(address to, string calldata tokenUri, Sig calldata sig) external returns (uint256) {
+  function mint(
+    address to,
+    string calldata tokenUri,
+    Sig calldata sig,
+    uint96 feeRate,
+    address receiver
+  ) external returns (uint256) {
+    require(feeRate <= 1800, "SuperChief: creator fee must be less than 18%");
     require(_validateMintSign(to, sig), "Invalid signature");
     maxId++;
 
     _mint(to, maxId);
     _setTokenURI(maxId, tokenUri);
+    _setTokenRoyalty(maxId, receiver, feeRate);
 
     emit SuperChiefNftMinted(maxId, to, 1, tokenUri);
 

@@ -42,15 +42,21 @@ contract ERC1155Collection is SuperChiefERC1155 {
    * @param to owner of NFT
    * @param amount amount of NFT
    * @param tokenUri uri of NFT
+   * @param feeRate fee rate
+   * @param receiver fee receiver address
    */
   function mint(
     address to,
     uint256 amount,
-    string calldata tokenUri
+    string calldata tokenUri,
+    uint96 feeRate,
+    address receiver
   ) external onlyOwner returns (uint256) {
+    require(feeRate <= 1800, "SuperChief: creator fee must be less than 18%");
     maxId++;
     _mint(to, maxId, amount, "");
     _setURI(maxId, tokenUri);
+    _setTokenRoyalty(maxId, receiver, feeRate);
 
     emit SuperChiefNftMinted(maxId, to, amount, tokenUri);
 

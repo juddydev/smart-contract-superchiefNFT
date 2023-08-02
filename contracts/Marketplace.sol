@@ -6,6 +6,8 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
+import "@openzeppelin/contracts/interfaces/IERC165.sol";
+import "@openzeppelin/contracts/interfaces/IERC2981.sol";
 
 import "./libraries/ReentrancyGuard.sol";
 import "./libraries/EIP712.sol";
@@ -133,11 +135,26 @@ contract Marketplace is IMarketplace, ReentrancyGuard, EIP712, OwnableUpgradeabl
       buy.order
     );
 
+    Fee[] memory fees;
+    if (IERC165(sell.order.collection).supportsInterface(type(IERC2981).interfaceId)) {
+      fees = new Fee[](sell.order.fees.length + 1);
+      (address receiver, uint256 royaltyAmount) = IERC2981(sell.order.collection).royaltyInfo(
+        sell.order.tokenId,
+        10000
+      );
+      fees[0] = Fee({recipient: payable(receiver), rate: uint16(royaltyAmount)});
+      for (uint256 i = 0; i < sell.order.fees.length; i++) {
+        fees[i + 1] = sell.order.fees[i];
+      }
+    } else {
+      fees = sell.order.fees;
+    }
+
     _executeFundsTransfer(
       sell.order.trader,
       buy.order.trader,
       sell.order.paymentToken,
-      sell.order.fees,
+      fees,
       price
     );
     _executeTokenTransfer(
@@ -418,7 +435,7 @@ contract Marketplace is IMarketplace, ReentrancyGuard, EIP712, OwnableUpgradeabl
     address seller,
     address buyer,
     address paymentToken,
-    Fee[] calldata fees,
+    Fee[] memory fees,
     uint256 price
   ) internal {
     if (paymentToken == address(0)) {
@@ -440,7 +457,7 @@ contract Marketplace is IMarketplace, ReentrancyGuard, EIP712, OwnableUpgradeabl
    * @param price price of token
    */
   function _transferFees(
-    Fee[] calldata fees,
+    Fee[] memory fees,
     address paymentToken,
     address from,
     uint256 price
