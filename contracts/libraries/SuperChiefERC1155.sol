@@ -3,6 +3,7 @@ pragma solidity ^0.8.9;
 
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {ERC2981, IERC2981} from "@openzeppelin/contracts/token/common/ERC2981.sol";
+import {ERC1155Holder, ERC1155Receiver, IERC1155Receiver} from "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Holder.sol";
 import {ERC1155URIStorage, ERC1155, IERC1155, IERC1155MetadataURI} from "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155URIStorage.sol";
 import {IExecutionDelegate} from "../interfaces/IExecutionDelegate.sol";
 
@@ -10,11 +11,13 @@ import {IExecutionDelegate} from "../interfaces/IExecutionDelegate.sol";
  * @title SuperChief Maketplace NFT Standard
  * @dev use ERC1155URIStorage standard
  */
-contract SuperChiefERC1155 is ERC1155URIStorage, ERC2981, Ownable {
+contract SuperChiefERC1155 is ERC1155URIStorage, ERC1155Holder, ERC2981, Ownable {
   /// @dev collection params
   string public name;
   string public symbol;
   string public contractURI;
+
+  mapping(uint256 => mapping(address => uint256)) private _listingBalances;
 
   /// @dev address public executionDelegate
   IExecutionDelegate public executionDelegate;
@@ -87,11 +90,12 @@ contract SuperChiefERC1155 is ERC1155URIStorage, ERC2981, Ownable {
    */
   function supportsInterface(
     bytes4 interfaceId
-  ) public view virtual override(ERC2981, ERC1155) returns (bool) {
+  ) public view virtual override(ERC2981, ERC1155, ERC1155Receiver) returns (bool) {
     return
       interfaceId == type(IERC1155).interfaceId ||
       interfaceId == type(IERC1155MetadataURI).interfaceId ||
       interfaceId == type(IERC2981).interfaceId ||
+      interfaceId == type(IERC1155Receiver).interfaceId ||
       super.supportsInterface(interfaceId);
   }
 
@@ -117,6 +121,37 @@ contract SuperChiefERC1155 is ERC1155URIStorage, ERC2981, Ownable {
       emit SuperChiefTransferSingle(operator, from, to, ids[0], amounts[0]);
     } else {
       emit SuperChiefTransferBatch(operator, from, to, ids, amounts);
+    }
+  }
+
+  function _mint(
+    address to,
+    uint256 id,
+    uint256 amount,
+    bytes memory data
+  ) internal virtual override {
+    super._mint(address(this), id, amount, data);
+    _listingBalances[id][to] += amount;
+  }
+
+  function _safeTransferFrom(
+    address from,
+    address to,
+    uint256 id,
+    uint256 amount,
+    bytes memory data
+  ) internal virtual override {
+    if (_listingBalances[id][from] >= amount) {
+      require(
+        from == _msgSender() || isApprovedForAll(from, _msgSender()),
+        "ERC1155: caller is not token owner or approved"
+      );
+      super._safeTransferFrom(address(this), to, id, amount, data);
+      unchecked {
+        _listingBalances[id][from] -= amount;
+      }
+    } else {
+      super._safeTransferFrom(from, to, id, amount, data);
     }
   }
 }

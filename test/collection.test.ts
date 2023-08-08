@@ -67,7 +67,12 @@ describe("SuperChief Collection test", () => {
 
     await expect(collection.mint(alice.address, 1, "", 100, alice.address))
       .to.emit(collection, "SuperChiefTransferSingle")
-      .withArgs(deployer.address, constants.AddressZero, alice.address, 1, 1);
+      .withArgs(deployer.address, constants.AddressZero, collection.address, 1, 1);
+
+    // transfer test
+    await expect(collection.connect(alice).safeTransferFrom(alice.address, deployer.address, 1, 1, "0x"))
+      .to.emit(collection, "SuperChiefTransferSingle")
+      .withArgs(alice.address, collection.address, deployer.address, 1, 1);
   });
 });
 
@@ -105,6 +110,6 @@ describe("SuperChief Exhibition test", () => {
     const validSign = await signMint(deployer.address, 1, alice.address, exhibition.address);
     await expect(exhibition.mint(alice.address, 1, "", validSign, 100, alice.address))
       .to.emit(exhibition, "SuperChiefTransferSingle")
-      .withArgs(deployer.address, constants.AddressZero, alice.address, 1, 1);
+      .withArgs(deployer.address, constants.AddressZero, exhibition.address, 1, 1);
   });
 });
