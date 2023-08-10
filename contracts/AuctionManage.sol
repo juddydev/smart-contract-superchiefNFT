@@ -36,6 +36,8 @@ contract AuctionManager is ReentrancyGuard, ERC721Holder, ERC1155Holder, Ownable
   event NewBid(bytes32 indexed id, address indexed bidder, uint256 indexed bidPrice);
   /// @dev emit this event when auction finished
   event Finished(bytes32 indexed id, address indexed winner, uint256 indexed bidPrice);
+  /// @dev emit this event when bid makes in 15 minutes from endTime
+  event AuctionTimeExtended(bytes32 indexed id, uint256 endTime);
 
   constructor() {}
 
@@ -125,6 +127,14 @@ contract AuctionManager is ReentrancyGuard, ERC721Holder, ERC1155Holder, Ownable
 
     auction.lastBidder = msg.sender;
     auction.bidPrice = _price;
+
+    if (block.timestamp + 900 > auction.endTime) {
+      // Any bids made within the last 15 minutes of auction deadline Extends Auction 15 minutes
+      auction.endTime += 900;
+
+      emit AuctionTimeExtended(_id, auction.endTime);
+    }
+
     auctions[_id] = auction;
 
     if (previousBidder != address(0)) {
