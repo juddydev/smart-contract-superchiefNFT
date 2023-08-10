@@ -1,12 +1,11 @@
 import { DeployFunction } from "hardhat-deploy/types";
 import {
-  ERC1967Proxy__factory,
   ExecutionDelegate__factory,
   MarketplaceMock__factory,
-  Marketplace__factory,
   MerkleVerifier__factory,
   PolicyManager__factory,
   WETH__factory,
+  ERC1967Proxy__factory,
 } from "../types";
 import { Ship } from "../utils";
 import { weth } from "../configs/weth";
@@ -45,6 +44,10 @@ const func: DeployFunction = async (hre) => {
     const tx = await executionDelegate.approveContract(proxy.address);
     console.log("Approving proxy contract at", tx.hash);
     await tx.wait();
+
+    const marketplace = MarketplaceMock__factory.connect(proxy.contract.address, accounts.deployer);
+    const feeTx = await marketplace.addBaseFee(200, accounts.vault.address);
+    await feeTx.wait();
   }
 };
 

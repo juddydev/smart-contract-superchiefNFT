@@ -61,6 +61,9 @@ const publicMutableMethods = [
   `execute((${order},uint8,bytes32,bytes32,bytes,uint8,uint256),(${order},uint8,bytes32,bytes32,bytes,uint8,uint256))`,
   "upgradeTo(address)",
   "upgradeToAndCall(address,bytes)",
+  "updateBaseFee((uint16,address)[])",
+  "clearBaseFee()",
+  "addBaseFee(uint16,address)",
 ];
 
 describe("Permissions test", () => {

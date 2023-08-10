@@ -58,6 +58,7 @@ contract Marketplace is IMarketplace, ReentrancyGuard, EIP712, OwnableUpgradeabl
   IPolicyManager public policyManager;
   address public oracle;
   uint256 public blockRange;
+  Fee[] public baseFee;
 
   /* Storage */
   mapping(bytes32 => bool) public cancelledOrFilled;
@@ -80,6 +81,7 @@ contract Marketplace is IMarketplace, ReentrancyGuard, EIP712, OwnableUpgradeabl
   event NewPolicyManager(IPolicyManager policyManager);
   event NewOracle(address oracle);
   event NewBlockRange(uint256 blockRange);
+  event NewBaseFee(Fee[] fees);
 
   constructor() {}
 
@@ -137,7 +139,7 @@ contract Marketplace is IMarketplace, ReentrancyGuard, EIP712, OwnableUpgradeabl
 
     Fee[] memory fees;
     if (IERC165(sell.order.collection).supportsInterface(type(IERC2981).interfaceId)) {
-      fees = new Fee[](sell.order.fees.length + 1);
+      fees = new Fee[](sell.order.fees.length + baseFee.length + 1);
       (address receiver, uint256 royaltyAmount) = IERC2981(sell.order.collection).royaltyInfo(
         sell.order.tokenId,
         10000
@@ -146,8 +148,17 @@ contract Marketplace is IMarketplace, ReentrancyGuard, EIP712, OwnableUpgradeabl
       for (uint256 i = 0; i < sell.order.fees.length; i++) {
         fees[i + 1] = sell.order.fees[i];
       }
+      for (uint256 i = 0; i < baseFee.length; i++) {
+        fees[i + sell.order.fees.length + 1] = baseFee[i];
+      }
     } else {
-      fees = sell.order.fees;
+      fees = new Fee[](sell.order.fees.length + baseFee.length + 1);
+      for (uint256 i = 0; i < sell.order.fees.length; i++) {
+        fees[i] = sell.order.fees[i];
+      }
+      for (uint256 i = 0; i < baseFee.length; i++) {
+        fees[i + sell.order.fees.length] = baseFee[i];
+      }
     }
 
     _executeFundsTransfer(
@@ -238,6 +249,40 @@ contract Marketplace is IMarketplace, ReentrancyGuard, EIP712, OwnableUpgradeabl
   function setBlockRange(uint256 _blockRange) external onlyOwner {
     blockRange = _blockRange;
     emit NewBlockRange(blockRange);
+  }
+
+  /**
+   * @dev update base fees
+   * @param fees fees to update
+   */
+  function updateBaseFee(Fee[] calldata fees) external onlyOwner {
+    delete baseFee;
+    for (uint256 i = 0; i < fees.length; i++) {
+      baseFee.push(fees[i]);
+    }
+
+    emit NewBaseFee(fees);
+  }
+
+  /**
+   * @dev update base fees
+   * @param rate fees rate to add
+   * @param receiver receiver of fee to add
+   */
+  function addBaseFee(uint16 rate, address receiver) external onlyOwner {
+    Fee memory newFee = Fee({recipient: payable(receiver), rate: rate});
+    baseFee.push(newFee);
+
+    emit NewBaseFee(baseFee);
+  }
+
+  /**
+   * @dev clears base fee data
+   */
+  function clearBaseFee() external onlyOwner {
+    delete baseFee;
+
+    emit NewBaseFee(baseFee);
   }
 
   /* Internal Functions */
