@@ -58,7 +58,9 @@ struct Auction {
   uint256 bidPrice;
   uint256 startTime;
   uint256 endTime;
+  uint256 amount;
   address owner;
+  Fee[] fees;
 }
 
 struct Sig {

@@ -1,12 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
-import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import {IERC1155} from "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import {IERC165} from "@openzeppelin/contracts/interfaces/IERC165.sol";
+import {IERC2981} from "@openzeppelin/contracts/interfaces/IERC2981.sol";
 
 import {IExecutionDelegate} from "./interfaces/IExecutionDelegate.sol";
+import {Fee} from "./libraries/Structs.sol";
 
 /**
  * @title ExecutionDelegate
@@ -15,6 +18,7 @@ import {IExecutionDelegate} from "./interfaces/IExecutionDelegate.sol";
 contract ExecutionDelegate is IExecutionDelegate, Ownable {
   mapping(address => bool) public contracts;
   mapping(address => bool) public revokedApproval;
+  Fee[] public baseFee;
 
   modifier approvedContract() {
     require(contracts[msg.sender], "Contract is not approved to make transfers");
@@ -26,6 +30,7 @@ contract ExecutionDelegate is IExecutionDelegate, Ownable {
 
   event RevokeApproval(address indexed user);
   event GrantApproval(address indexed user);
+  event NewBaseFee(Fee[] fees);
 
   /**
    * @dev Approve contract to call transfer functions
@@ -129,5 +134,78 @@ contract ExecutionDelegate is IExecutionDelegate, Ownable {
   ) external approvedContract returns (bool) {
     require(revokedApproval[from] == false, "User has revoked approval");
     return IERC20(token).transferFrom(from, to, amount);
+  }
+
+  //////////////////
+  // fee calculator logic
+  /**
+   * @dev caculates fee
+   * @param _collection collection address
+   * @param _fees requesting fee
+   * @param _tokenId id of token
+   * @return fees cauculated fee
+   */
+  function calcuateFee(
+    address _collection,
+    uint256 _tokenId,
+    Fee[] memory _fees
+  ) external view returns (Fee[] memory fees) {
+    fees = new Fee[](0);
+    if (IERC165(_collection).supportsInterface(type(IERC2981).interfaceId)) {
+      fees = new Fee[](_fees.length + baseFee.length + 1);
+      (address receiver, uint256 royaltyAmount) = IERC2981(_collection).royaltyInfo(
+        _tokenId,
+        10000
+      );
+      fees[0] = Fee({recipient: payable(receiver), rate: uint16(royaltyAmount)});
+      for (uint256 i = 0; i < _fees.length; i++) {
+        fees[i + 1] = _fees[i];
+      }
+      for (uint256 i = 0; i < baseFee.length; i++) {
+        fees[i + _fees.length + 1] = baseFee[i];
+      }
+    } else {
+      fees = new Fee[](_fees.length + baseFee.length + 1);
+      for (uint256 i = 0; i < _fees.length; i++) {
+        fees[i] = _fees[i];
+      }
+      for (uint256 i = 0; i < baseFee.length; i++) {
+        fees[i + _fees.length] = baseFee[i];
+      }
+    }
+  }
+
+  /**
+   * @dev update base fees
+   * @param fees fees to update
+   */
+  function updateBaseFee(Fee[] calldata fees) external onlyOwner {
+    delete baseFee;
+    for (uint256 i = 0; i < fees.length; i++) {
+      baseFee.push(fees[i]);
+    }
+
+    emit NewBaseFee(fees);
+  }
+
+  /**
+   * @dev update base fees
+   * @param rate fees rate to add
+   * @param receiver receiver of fee to add
+   */
+  function addBaseFee(uint16 rate, address receiver) external onlyOwner {
+    Fee memory newFee = Fee({recipient: payable(receiver), rate: rate});
+    baseFee.push(newFee);
+
+    emit NewBaseFee(baseFee);
+  }
+
+  /**
+   * @dev clears base fee data
+   */
+  function clearBaseFee() external onlyOwner {
+    delete baseFee;
+
+    emit NewBaseFee(baseFee);
   }
 }

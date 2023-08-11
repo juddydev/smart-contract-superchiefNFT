@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
+import {Fee} from "../libraries/Structs.sol";
+
 interface IExecutionDelegate {
   function contracts(address to) external view returns (bool);
 
@@ -35,4 +37,10 @@ interface IExecutionDelegate {
     address to,
     uint256 amount
   ) external returns (bool);
+
+  function calcuateFee(
+    address _collection,
+    uint256 _tokenId,
+    Fee[] memory _fees
+  ) external view returns (Fee[] memory fees);
 }

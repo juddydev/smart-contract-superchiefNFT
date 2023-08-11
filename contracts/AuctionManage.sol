@@ -10,8 +10,9 @@ import {SafeERC20, IERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeE
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
+import {IExecutionDelegate} from "./interfaces/IExecutionDelegate.sol";
 import {ReentrancyGuard} from "./libraries/ReentrancyGuard.sol";
-import {AssetType, Auction} from "./libraries/Structs.sol";
+import {AssetType, Auction, Fee} from "./libraries/Structs.sol";
 
 /**
  * @title English Auction Manager Contract
@@ -19,8 +20,12 @@ import {AssetType, Auction} from "./libraries/Structs.sol";
 contract AuctionManager is ReentrancyGuard, ERC721Holder, ERC1155Holder, Ownable, UUPSUpgradeable {
   using SafeERC20 for IERC20;
 
+  uint256 public constant INVERSE_BASIS_POINT = 10000;
+
   /// @dev acutions
   mapping(bytes32 => Auction) public auctions;
+  /// @dev execution delegate
+  IExecutionDelegate public executionDelegate;
 
   /// @dev emit this event when auction started
   event AuctionStarted(
@@ -30,8 +35,11 @@ contract AuctionManager is ReentrancyGuard, ERC721Holder, ERC1155Holder, Ownable
     uint256 tokenId,
     uint256 minPrice,
     uint256 startTime,
-    uint256 endTime
+    uint256 endTime,
+    Fee[] fees
   );
+
+  event NewExecutionDelegate(IExecutionDelegate executionDelegate);
   /// @dev emit this event when new bid added
   event NewBid(bytes32 indexed id, address indexed bidder, uint256 indexed bidPrice);
   /// @dev emit this event when auction finished
@@ -42,7 +50,12 @@ contract AuctionManager is ReentrancyGuard, ERC721Holder, ERC1155Holder, Ownable
   constructor() {}
 
   /* Constructor (for ERC1967) */
-  function initialize() public initializer {}
+  /**
+   * @param _executionDelegate execution delegate address
+   */
+  function initialize(IExecutionDelegate _executionDelegate) public initializer {
+    executionDelegate = _executionDelegate;
+  }
 
   // required by the OZ UUPS module
   function _authorizeUpgrade(address) internal override onlyOwner {}
@@ -55,6 +68,7 @@ contract AuctionManager is ReentrancyGuard, ERC721Holder, ERC1155Holder, Ownable
    * @param _minPrice minimum price of bidF
    * @param _startTime time to start auction
    * @param _duration duration of auction
+   * @param _fees fee data
    */
   function createAuction(
     address _collection,
@@ -62,7 +76,8 @@ contract AuctionManager is ReentrancyGuard, ERC721Holder, ERC1155Holder, Ownable
     address _paymentToken,
     uint256 _minPrice,
     uint256 _startTime,
-    uint256 _duration
+    uint256 _duration,
+    Fee[] memory _fees
   ) external {
     require(_startTime >= block.timestamp, "Auction: invalid start time");
     AssetType assetType;
@@ -87,7 +102,9 @@ contract AuctionManager is ReentrancyGuard, ERC721Holder, ERC1155Holder, Ownable
       0,
       _startTime,
       _startTime + _duration,
-      msg.sender
+      1,
+      msg.sender,
+      _fees
     );
 
     // lock asset to auction contract
@@ -104,7 +121,8 @@ contract AuctionManager is ReentrancyGuard, ERC721Holder, ERC1155Holder, Ownable
       _tokenId,
       _minPrice,
       _startTime,
-      _startTime + _duration
+      _startTime + _duration,
+      _fees
     );
   }
 
@@ -172,37 +190,42 @@ contract AuctionManager is ReentrancyGuard, ERC721Holder, ERC1155Holder, Ownable
     // get asset receiver
     address assetReceiver;
     if (auctions[_id].lastBidder == address(0)) {
-      assetReceiver = owner();
+      assetReceiver = auctions[_id].owner;
     } else {
       assetReceiver = auctions[_id].lastBidder;
     }
 
-    // sends asset to receiver
-    if (auctions[_id].assetType == AssetType.ERC721) {
-      IERC721(auctions[_id].collection).safeTransferFrom(
-        address(this),
-        assetReceiver,
-        auctions[_id].tokenId
-      );
-    } else if (auctions[_id].assetType == AssetType.ERC1155) {
-      IERC1155(auctions[_id].collection).safeTransferFrom(
-        address(this),
-        assetReceiver,
-        auctions[_id].tokenId,
-        1,
-        ""
-      );
-    }
+    Fee[] memory fees = executionDelegate.calcuateFee(
+      auctions[_id].collection,
+      auctions[_id].tokenId,
+      auctions[_id].fees
+    );
 
-    // sends bid token to owner
-    if (auctions[_id].paymentToken == address(0)) {
-      payable(auctions[_id].owner).transfer(auctions[_id].bidPrice);
-    } else {
-      IERC20(auctions[_id].paymentToken).safeTransfer(auctions[_id].owner, auctions[_id].bidPrice);
-    }
+    _executeFundsTransfer(
+      auctions[_id].owner,
+      auctions[_id].paymentToken,
+      fees,
+      auctions[_id].bidPrice
+    );
+    _executeTokenTransfer(
+      auctions[_id].collection,
+      assetReceiver,
+      auctions[_id].tokenId,
+      auctions[_id].amount,
+      auctions[_id].assetType
+    );
 
     emit Finished(_id, assetReceiver, auctions[_id].bidPrice);
   }
+
+  /* Setters */
+  function setExecutionDelegate(IExecutionDelegate _executionDelegate) external onlyOwner {
+    require(address(_executionDelegate) != address(0), "Address cannot be zero");
+    executionDelegate = _executionDelegate;
+    emit NewExecutionDelegate(executionDelegate);
+  }
+
+  /* Internal functions */
 
   function _calculateHash(
     address _collection,
@@ -214,5 +237,111 @@ contract AuctionManager is ReentrancyGuard, ERC721Holder, ERC1155Holder, Ownable
       keccak256(
         abi.encodePacked(msg.sender, _collection, _tokenId, _paymentToken, _minPrice, block.number)
       );
+  }
+
+  /**
+   * @dev Execute all ERC20 token / ETH transfers associated with an order match (fees and buyer => seller transfer)
+   * @param to destination address
+   * @param paymentToken payment token
+   * @param fees fees
+   * @param price price
+   */
+  function _executeFundsTransfer(
+    address to,
+    address paymentToken,
+    Fee[] memory fees,
+    uint256 price
+  ) internal {
+    if (paymentToken == address(0)) {
+      require(msg.value == price);
+    }
+
+    /* Take fee. */
+    uint256 receiveAmount = _transferFees(fees, paymentToken, price);
+
+    /* Transfer remainder to seller. */
+    _transferTo(paymentToken, to, receiveAmount);
+  }
+
+  /**
+   * @dev Charge a fee in ETH or WETH
+   * @param fees fees to distribute
+   * @param paymentToken address of token to pay in
+   * @param price price of token
+   */
+  function _transferFees(
+    Fee[] memory fees,
+    address paymentToken,
+    uint256 price
+  ) internal returns (uint256) {
+    uint256 totalFee = 0;
+    for (uint8 i = 0; i < fees.length; i++) {
+      uint256 fee = (price * fees[i].rate) / INVERSE_BASIS_POINT;
+      _transferTo(paymentToken, fees[i].recipient, fee);
+      totalFee += fee;
+    }
+
+    require(totalFee <= price, "Total amount of fees are more than the price");
+
+    /* Amount that will be received by seller. */
+    uint256 receiveAmount = price - totalFee;
+    return (receiveAmount);
+  }
+
+  /**
+   * @dev Transfer amount in ETH or WETH
+   * @param paymentToken address of token to pay in
+   * @param to token recipient
+   * @param amount amount to transfer
+   */
+  function _transferTo(address paymentToken, address to, uint256 amount) internal {
+    if (amount == 0) {
+      return;
+    }
+
+    if (paymentToken == address(0)) {
+      /* Transfer funds in ETH. */
+      payable(to).transfer(amount);
+    } else {
+      /* Transfer funds in WETH. */
+      IERC20(paymentToken).safeTransfer(to, amount);
+    }
+  }
+
+  /**
+   * @dev Execute call through delegate proxy
+   * @param collection collection contract address
+   * @param to buyer address
+   * @param tokenId tokenId
+   * @param assetType asset type of the token
+   */
+  function _executeTokenTransfer(
+    address collection,
+    address to,
+    uint256 tokenId,
+    uint256 amount,
+    AssetType assetType
+  ) internal {
+    /* Assert collection exists. */
+    require(_exists(collection), "Collection does not exist");
+
+    /* Call execution delegate. */
+    if (assetType == AssetType.ERC721) {
+      IERC721(collection).safeTransferFrom(address(this), to, tokenId);
+    } else if (assetType == AssetType.ERC1155) {
+      IERC1155(collection).safeTransferFrom(address(this), to, tokenId, amount, "");
+    }
+  }
+
+  /**
+   * @dev Determine if the given address exists
+   * @param what address to check
+   */
+  function _exists(address what) internal view returns (bool) {
+    uint size;
+    assembly {
+      size := extcodesize(what)
+    }
+    return size > 0;
   }
 }
