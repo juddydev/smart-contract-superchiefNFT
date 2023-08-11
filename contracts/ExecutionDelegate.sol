@@ -148,7 +148,7 @@ contract ExecutionDelegate is IExecutionDelegate, Ownable {
   function calcuateFee(
     address _collection,
     uint256 _tokenId,
-    Fee[] memory _fees
+    Fee[] calldata _fees
   ) external view returns (Fee[] memory fees) {
     fees = new Fee[](0);
     if (IERC165(_collection).supportsInterface(type(IERC2981).interfaceId)) {

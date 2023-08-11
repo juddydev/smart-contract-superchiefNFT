@@ -81,6 +81,7 @@ describe("AuctionManager test", () => {
         parseUnits("1"),
         current + 10,
         24 * 60 * 60,
+        [],
       ),
     ).to.emit(auctionManager, "AuctionStarted");
 

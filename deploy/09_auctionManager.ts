@@ -9,18 +9,14 @@ const func: DeployFunction = async (hre) => {
 
   const implement = await deploy(AuctionManager__factory);
 
-  const initializeTransaction = await implement.contract.populateTransaction.initialize();
+  const initializeTransaction = await implement.contract.populateTransaction.initialize(
+    executionDelegate.address,
+  );
 
-  const proxy = await deploy(ERC1967Proxy__factory, {
+  await deploy(ERC1967Proxy__factory, {
     aliasName: "AuctionManagerProxy",
     args: [implement.address, initializeTransaction.data as string],
   });
-
-  if (proxy.newlyDeployed) {
-    const tx = await executionDelegate.approveContract(proxy.address);
-    console.log("Approving proxy contract at", tx.hash);
-    await tx.wait();
-  }
 };
 
 export default func;

@@ -92,20 +92,20 @@ contract AuctionManager is ReentrancyGuard, ERC721Holder, ERC1155Holder, Ownable
     // calculate id of auction
     bytes32 id = _calculateHash(_collection, _tokenId, _paymentToken, _minPrice);
 
-    auctions[id] = Auction(
-      assetType,
-      _collection,
-      _tokenId,
-      _paymentToken,
-      _minPrice,
-      address(0),
-      0,
-      _startTime,
-      _startTime + _duration,
-      1,
-      msg.sender,
-      _fees
-    );
+    Auction storage auction = auctions[id];
+    auction.assetType = assetType;
+    auction.collection = _collection;
+    auction.tokenId = _tokenId;
+    auction.paymentToken = _paymentToken;
+    auction.minPrice = _minPrice;
+    auction.startTime = _startTime;
+    auction.endTime = _startTime + _duration;
+    auction.amount = 1;
+    auction.owner = msg.sender;
+
+    for (uint256 i = 0; i < _fees.length; i++) {
+      auction.fees.push(_fees[i]);
+    }
 
     // lock asset to auction contract
     if (assetType == AssetType.ERC721) {
@@ -122,7 +122,7 @@ contract AuctionManager is ReentrancyGuard, ERC721Holder, ERC1155Holder, Ownable
       _minPrice,
       _startTime,
       _startTime + _duration,
-      _fees
+      auction.fees
     );
   }
 
@@ -138,7 +138,7 @@ contract AuctionManager is ReentrancyGuard, ERC721Holder, ERC1155Holder, Ownable
     require(_price >= auctions[_id].minPrice, "Auction: bid price is low than minimum price");
     require(_price > auctions[_id].bidPrice, "Auction: bid price is low than last one");
 
-    Auction memory auction = auctions[_id];
+    Auction storage auction = auctions[_id];
 
     address previousBidder = auction.lastBidder;
     uint256 previousPrice = auction.bidPrice;
@@ -152,8 +152,6 @@ contract AuctionManager is ReentrancyGuard, ERC721Holder, ERC1155Holder, Ownable
 
       emit AuctionTimeExtended(_id, auction.endTime);
     }
-
-    auctions[_id] = auction;
 
     if (previousBidder != address(0)) {
       // release last bidder's token

@@ -67,10 +67,6 @@ const func: DeployFunction = async (hre) => {
     const tx = await executionDelegate.approveContract(proxy.address);
     console.log("Approving proxy contract at", tx.hash);
     await tx.wait();
-
-    const marketplace = Marketplace__factory.connect(proxy.contract.address, accounts.deployer);
-    const feeTx = await marketplace.addBaseFee(200, accounts.vault.address);
-    await feeTx.wait();
   }
 };
 

@@ -3,9 +3,14 @@ import { ExecutionDelegate__factory } from "../types";
 import { Ship } from "../utils";
 
 const func: DeployFunction = async (hre) => {
-  const { deploy } = await Ship.init(hre);
+  const { deploy, accounts } = await Ship.init(hre);
 
-  await deploy(ExecutionDelegate__factory);
+  const executionDelegate = await deploy(ExecutionDelegate__factory);
+
+  if (executionDelegate.newlyDeployed) {
+    const tx = await executionDelegate.contract.addBaseFee(200, accounts.vault.address);
+    await tx.wait();
+  }
 };
 
 export default func;
