@@ -9,7 +9,7 @@ import {IERC165} from "@openzeppelin/contracts/interfaces/IERC165.sol";
 import {IERC2981} from "@openzeppelin/contracts/interfaces/IERC2981.sol";
 
 import {IExecutionDelegate} from "./interfaces/IExecutionDelegate.sol";
-import {Fee} from "./libraries/Structs.sol";
+import {Fee, Sig} from "./libraries/Structs.sol";
 
 /**
  * @title ExecutionDelegate
@@ -18,6 +18,7 @@ import {Fee} from "./libraries/Structs.sol";
 contract ExecutionDelegate is IExecutionDelegate, Ownable {
   mapping(address => bool) public contracts;
   mapping(address => bool) public revokedApproval;
+  mapping(address => uint256) public nonce;
   Fee[] public baseFee;
 
   modifier approvedContract() {
@@ -31,6 +32,12 @@ contract ExecutionDelegate is IExecutionDelegate, Ownable {
   event RevokeApproval(address indexed user);
   event GrantApproval(address indexed user);
   event NewBaseFee(Fee[] fees);
+
+  modifier onlySuperAdmin(Sig calldata sig) {
+    require(_validateSign(sig), "Owner sign is invalide");
+    nonce[_msgSender()]++;
+    _;
+  }
 
   /**
    * @dev Approve contract to call transfer functions
@@ -179,7 +186,7 @@ contract ExecutionDelegate is IExecutionDelegate, Ownable {
    * @dev update base fees
    * @param fees fees to update
    */
-  function updateBaseFee(Fee[] calldata fees) external onlyOwner {
+  function updateBaseFee(Fee[] calldata fees, Sig calldata sig) external onlySuperAdmin(sig) {
     delete baseFee;
     for (uint256 i = 0; i < fees.length; i++) {
       baseFee.push(fees[i]);
@@ -193,7 +200,11 @@ contract ExecutionDelegate is IExecutionDelegate, Ownable {
    * @param rate fees rate to add
    * @param receiver receiver of fee to add
    */
-  function addBaseFee(uint16 rate, address receiver) external onlyOwner {
+  function addBaseFee(
+    uint16 rate,
+    address receiver,
+    Sig calldata sig
+  ) external onlySuperAdmin(sig) {
     Fee memory newFee = Fee({recipient: payable(receiver), rate: rate});
     baseFee.push(newFee);
 
@@ -201,11 +212,16 @@ contract ExecutionDelegate is IExecutionDelegate, Ownable {
   }
 
   /**
-   * @dev clears base fee data
+   * @dev validate signature of contract owner
+   * @param sig sign of owner
    */
-  function clearBaseFee() external onlyOwner {
-    delete baseFee;
+  function _validateSign(Sig calldata sig) private view returns (bool) {
+    bytes32 messageHash = keccak256(abi.encodePacked(_msgSender(), nonce[_msgSender()]));
 
-    emit NewBaseFee(baseFee);
+    bytes32 ethSignedMessageHash = keccak256(
+      abi.encodePacked("\x19Ethereum Signed Message:\n32", messageHash)
+    );
+
+    return owner() == ecrecover(ethSignedMessageHash, sig.v, sig.r, sig.s);
   }
 }
