@@ -31,7 +31,8 @@ contract ExecutionDelegate is IExecutionDelegate, Ownable {
 
   event RevokeApproval(address indexed user);
   event GrantApproval(address indexed user);
-  event NewBaseFee(Fee[] fees);
+  event ClearedBaseFee();
+  event NewBaseFee(uint16 id, string label, uint16 rate, address receipt);
 
   modifier onlySuperAdmin(Sig calldata sig) {
     require(_validateSign(sig), "Owner sign is invalide");
@@ -184,23 +185,33 @@ contract ExecutionDelegate is IExecutionDelegate, Ownable {
 
   /**
    * @dev update base fees
-   * @param fees fees to update
+   * @param id id of fee
+   * @param label label of fee
+   * @param rate fee rate
+   * @param receiver fee receiver
+   * @param sig signature of owner wallet
    */
-  function updateBaseFee(Fee[] calldata fees, Sig calldata sig) external onlySuperAdmin(sig) {
-    delete baseFee;
-    for (uint256 i = 0; i < fees.length; i++) {
-      baseFee.push(fees[i]);
-    }
+  function updateBaseFee(
+    uint16 id,
+    string memory label,
+    uint16 rate,
+    address receiver,
+    Sig calldata sig
+  ) external onlySuperAdmin(sig) {
+    require(baseFee.length > id, "Invalid id");
+    baseFee[id] = Fee(rate, payable(receiver));
 
-    emit NewBaseFee(fees);
+    emit NewBaseFee(id, label, rate, receiver);
   }
 
   /**
    * @dev update base fees
+   * @param label label of fee
    * @param rate fees rate to add
    * @param receiver receiver of fee to add
    */
   function addBaseFee(
+    string memory label,
     uint16 rate,
     address receiver,
     Sig calldata sig
@@ -208,7 +219,16 @@ contract ExecutionDelegate is IExecutionDelegate, Ownable {
     Fee memory newFee = Fee({recipient: payable(receiver), rate: rate});
     baseFee.push(newFee);
 
-    emit NewBaseFee(baseFee);
+    emit NewBaseFee(uint16(baseFee.length - 1), label, rate, receiver);
+  }
+
+  /**
+   * @dev clears all base fee
+   */
+  function clearBaseFee(Sig calldata sig) external onlySuperAdmin(sig) {
+    delete baseFee;
+
+    emit ClearedBaseFee();
   }
 
   /**
