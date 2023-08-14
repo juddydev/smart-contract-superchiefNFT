@@ -73,7 +73,8 @@ contract AuctionManager is
    * @param _collection address of collection
    * @param _tokenId token id of nft
    * @param _paymentToken address of bid token
-   * @param _minPrice minimum price of bidF
+   * @param _minPrice minimum price of bid
+   * @param _minWinPercent minimum win percent
    * @param _startTime time to start auction
    * @param _duration duration of auction
    * @param _fees fee data
@@ -83,6 +84,7 @@ contract AuctionManager is
     uint256 _tokenId,
     address _paymentToken,
     uint256 _minPrice,
+    uint256 _minWinPercent,
     uint256 _startTime,
     uint256 _duration,
     Fee[] memory _fees
@@ -108,6 +110,7 @@ contract AuctionManager is
     auction.minPrice = _minPrice;
     auction.startTime = _startTime;
     auction.endTime = _startTime + _duration;
+    auction.minWinPercent = _minWinPercent;
     auction.amount = 1;
     auction.owner = msg.sender;
 
@@ -144,7 +147,10 @@ contract AuctionManager is
   function bid(bytes32 _id, uint256 _price) external payable nonReentrant {
     require(block.timestamp < auctions[_id].endTime, "Auction: This auction already finished");
     require(_price >= auctions[_id].minPrice, "Auction: bid price is low than minimum price");
-    require(_price > auctions[_id].bidPrice, "Auction: bid price is low than last one");
+    require(
+      _price > (auctions[_id].bidPrice * auctions[_id].minWinPercent) / 100,
+      "Auction: bid price is low than minimum win price"
+    );
 
     Auction storage auction = auctions[_id];
 

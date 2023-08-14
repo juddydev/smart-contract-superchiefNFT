@@ -79,6 +79,7 @@ describe("AuctionManager test", () => {
         1,
         token.address,
         parseUnits("1"),
+        105,
         current + 10,
         24 * 60 * 60,
         [],
@@ -111,8 +112,8 @@ describe("AuctionManager test", () => {
     expect((await auctionManager.auctions(auctionId)).lastBidder).to.eq(alice.address);
     expect(await token.balanceOf(auctionManager.address)).to.eq(parseUnits("1"));
 
-    await expect(auctionManager.connect(bob).bid(auctionId, parseUnits("1"))).to.revertedWith(
-      "Auction: bid price is low than last one",
+    await expect(auctionManager.connect(bob).bid(auctionId, parseUnits("1.01"))).to.revertedWith(
+      "Auction: bid price is low than minimum win price",
     );
 
     await expect(auctionManager.connect(bob).bid(auctionId, parseUnits("1.5")))

@@ -52,14 +52,15 @@ struct Auction {
   AssetType assetType;
   address collection;
   uint256 tokenId;
+  uint256 amount;
   address paymentToken;
   uint256 minPrice;
-  address lastBidder;
-  uint256 bidPrice;
+  uint256 minWinPercent;
   uint256 startTime;
   uint256 endTime;
-  uint256 amount;
   address owner;
+  address lastBidder;
+  uint256 bidPrice;
   Fee[] fees;
 }
 
