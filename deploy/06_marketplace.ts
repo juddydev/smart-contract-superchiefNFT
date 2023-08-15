@@ -64,7 +64,7 @@ const func: DeployFunction = async (hre) => {
   });
 
   if (proxy.newlyDeployed) {
-    const tx = await executionDelegate.approveContract(proxy.address);
+    const tx = await executionDelegate.approveContract(proxy.address, "SuperChief Marketplace");
     console.log("Approving proxy contract at", tx.hash);
     await tx.wait();
   }

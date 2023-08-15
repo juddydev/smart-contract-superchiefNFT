@@ -26,7 +26,7 @@ contract ExecutionDelegate is IExecutionDelegate, Ownable {
     _;
   }
 
-  event ApproveContract(address indexed _contract);
+  event ApproveContract(address indexed _contract, string name);
   event DenyContract(address indexed _contract);
 
   event RevokeApproval(address indexed user);
@@ -44,9 +44,9 @@ contract ExecutionDelegate is IExecutionDelegate, Ownable {
    * @dev Approve contract to call transfer functions
    * @param _contract address of contract to approve
    */
-  function approveContract(address _contract) external onlyOwner {
+  function approveContract(address _contract, string memory _name) external onlyOwner {
     contracts[_contract] = true;
-    emit ApproveContract(_contract);
+    emit ApproveContract(_contract, _name);
   }
 
   /**

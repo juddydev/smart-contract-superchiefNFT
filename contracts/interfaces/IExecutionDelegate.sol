@@ -6,7 +6,7 @@ import {Fee} from "../libraries/Structs.sol";
 interface IExecutionDelegate {
   function contracts(address to) external view returns (bool);
 
-  function approveContract(address _contract) external;
+  function approveContract(address _contract, string memory _name) external;
 
   function denyContract(address _contract) external;
 

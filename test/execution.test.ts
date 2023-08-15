@@ -230,10 +230,10 @@ describe("Execution test", () => {
     await expect(marketplace.connect(bob).execute(sellInput, buyInput)).to.be.revertedWith(
       "Contract is not approved to make transfers",
     );
-    await executionDelegate.approveContract(marketplace.address);
+    await executionDelegate.approveContract(marketplace.address, "Marketplace");
   });
   it("should succeed is approval is given", async () => {
-    await executionDelegate.approveContract(marketplace.address);
+    await executionDelegate.approveContract(marketplace.address, "Marketplace");
     buyInput = await buy.packNoSigs();
     const tx = await marketplace.connect(bob).execute(sellInput, buyInput);
     const receipt = await tx.wait();
@@ -254,7 +254,7 @@ describe("Execution test", () => {
     await expect(marketplace.connect(bob).execute(sellInput, buyInput)).to.be.revertedWith(
       "User has revoked approval",
     );
-    await executionDelegate.approveContract(marketplace.address);
+    await executionDelegate.approveContract(marketplace.address, "Marketplace");
   });
   it("should succeed if user grants approval to ExecutionDelegate", async () => {
     await executionDelegate.connect(alice).grantApproval();
