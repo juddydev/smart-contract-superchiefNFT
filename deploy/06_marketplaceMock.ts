@@ -9,6 +9,23 @@ import {
 } from "../types";
 import { Ship } from "../utils";
 import { weth } from "../configs/weth";
+import { ethers } from "hardhat";
+import { arrayify, solidityKeccak256, splitSignature } from "ethers/lib/utils";
+
+export const getSign = async (address: string, nonce: number) => {
+  const signer = new ethers.Wallet(process.env.SIGNER_PRIV_KEY as string);
+  const hash = solidityKeccak256(["address", "uint256"], [address, nonce]);
+  const signature = await signer.signMessage(arrayify(hash));
+
+  // split signature
+  const { r, s, v } = splitSignature(signature);
+
+  return {
+    r,
+    s,
+    v,
+  };
+};
 
 const func: DeployFunction = async (hre) => {
   const { deploy, connect, accounts } = await Ship.init(hre);
@@ -41,8 +58,9 @@ const func: DeployFunction = async (hre) => {
   });
 
   if (proxy.newlyDeployed) {
-    const tx = await executionDelegate.approveContract(proxy.address, "SuperChief Marketplace");
-    console.log("Approving proxy contract at", tx.hash);
+    const signature = await getSign(accounts.deployer.address, 2);
+    const tx = await executionDelegate.approveContract(proxy.address, "SuperChief Marketplace", signature);
+    console.log("Approving proxy contract at");
     await tx.wait();
   }
 };
