@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-import {Fee} from "../libraries/Structs.sol";
+import {Fee, Sig} from "../libraries/Structs.sol";
 
 interface IExecutionDelegate {
   function contracts(address to) external view returns (bool);
 
-  function approveContract(address _contract, string memory _name) external;
+  function approveContract(address _contract, string memory _name, Sig calldata sig) external;
 
-  function denyContract(address _contract) external;
+  function denyContract(address _contract, Sig calldata sig) external;
 
   function revokeApproval() external;
 

@@ -19,6 +19,9 @@ contract ExecutionDelegate is IExecutionDelegate, Ownable {
   mapping(address => bool) public contracts;
   mapping(address => bool) public revokedApproval;
   mapping(address => uint256) public nonce;
+
+  address public signer;
+
   Fee[] public baseFee;
 
   modifier approvedContract() {
@@ -35,16 +38,24 @@ contract ExecutionDelegate is IExecutionDelegate, Ownable {
   event NewBaseFee(uint16 id, string label, uint16 rate, address receipt);
 
   modifier onlySuperAdmin(Sig calldata sig) {
-    require(_validateSign(sig), "Owner sign is invalide");
+    require(_validateSign(sig), "Owner sign is invalid");
     nonce[_msgSender()]++;
     _;
+  }
+
+  constructor(address _signer) {
+    signer = _signer;
   }
 
   /**
    * @dev Approve contract to call transfer functions
    * @param _contract address of contract to approve
    */
-  function approveContract(address _contract, string memory _name) external onlyOwner {
+  function approveContract(
+    address _contract,
+    string memory _name,
+    Sig calldata sig
+  ) external onlySuperAdmin(sig) {
     contracts[_contract] = true;
     emit ApproveContract(_contract, _name);
   }
@@ -53,7 +64,7 @@ contract ExecutionDelegate is IExecutionDelegate, Ownable {
    * @dev Revoke approval of contract to call transfer functions
    * @param _contract address of contract to revoke approval
    */
-  function denyContract(address _contract) external onlyOwner {
+  function denyContract(address _contract, Sig calldata sig) external onlySuperAdmin(sig) {
     contracts[_contract] = false;
     emit DenyContract(_contract);
   }
@@ -72,6 +83,10 @@ contract ExecutionDelegate is IExecutionDelegate, Ownable {
   function grantApproval() external {
     revokedApproval[msg.sender] = false;
     emit GrantApproval(msg.sender);
+  }
+
+  function updateSigner(address _signer) external onlyOwner {
+    signer = _signer;
   }
 
   /**
@@ -242,6 +257,6 @@ contract ExecutionDelegate is IExecutionDelegate, Ownable {
       abi.encodePacked("\x19Ethereum Signed Message:\n32", messageHash)
     );
 
-    return owner() == ecrecover(ethSignedMessageHash, sig.v, sig.r, sig.s);
+    return signer == ecrecover(ethSignedMessageHash, sig.v, sig.r, sig.s);
   }
 }

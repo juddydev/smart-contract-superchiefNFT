@@ -21,17 +21,12 @@ export const getSign = async (address: string, nonce: number, signer: SignerWith
 const func: DeployFunction = async (hre) => {
   const { deploy, connect, accounts } = await Ship.init(hre);
 
-  const executionDelegate = await deploy(ExecutionDelegate__factory);
+  const executionDelegate = await deploy(ExecutionDelegate__factory, {
+    args: ["0x608f3177A67Aa5A13b4B04f1230C0597356E9887"],
+  });
 
   if (executionDelegate.newlyDeployed) {
-    const signature = await getSign(accounts.deployer.address, 0, accounts.deployer);
-    const tx = await executionDelegate.contract.addBaseFee(
-      "SuperChief Platform Fee",
-      200,
-      accounts.vault.address,
-      signature,
-    );
-    await tx.wait();
+    console.log("Execution Delegate Contract deployed");
   }
 };
 
