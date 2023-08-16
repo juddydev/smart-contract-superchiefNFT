@@ -58,7 +58,7 @@ const func: DeployFunction = async (hre) => {
   });
 
   if (proxy.newlyDeployed) {
-    const signature = await getSign(accounts.deployer.address, 2);
+    const signature = await getSign(accounts.deployer.address, 3);
     const tx = await executionDelegate.approveContract(proxy.address, "SuperChief Marketplace", signature);
     console.log("Approving proxy contract at");
     await tx.wait();
