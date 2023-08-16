@@ -7,6 +7,8 @@ import {ERC1155Holder, ERC1155Receiver, IERC1155Receiver} from "@openzeppelin/co
 import {ERC1155URIStorage, ERC1155, IERC1155, IERC1155MetadataURI} from "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155URIStorage.sol";
 import {IExecutionDelegate} from "../interfaces/IExecutionDelegate.sol";
 
+import {Sig} from "../libraries/Structs.sol";
+
 /**
  * @title SuperChief Maketplace NFT Standard
  * @dev use ERC1155URIStorage standard
@@ -64,7 +66,9 @@ contract SuperChiefERC1155 is ERC1155URIStorage, ERC1155Holder, ERC2981, Ownable
     symbol = _symbol;
     executionDelegate = IExecutionDelegate(_executionDelegate);
 
-    setContractURI(_contractURI);
+    contractURI = _contractURI;
+
+    emit ContractURIChanged(_contractURI);
   }
 
   modifier onlyWhitelistedContract() {
@@ -102,8 +106,13 @@ contract SuperChiefERC1155 is ERC1155URIStorage, ERC1155Holder, ERC2981, Ownable
   /**
    * @dev Set contract url
    * @param _contractURI IPFS url for contract metadata
+   * @param _sig signature of admin
    */
-  function setContractURI(string memory _contractURI) public onlyOwner {
+  function setContractURI(string memory _contractURI, Sig calldata _sig) public {
+    require(
+      msg.sender == owner() || executionDelegate.validateSign(msg.sender, _sig),
+      "SuperChiefCollection: Permission denied"
+    );
     contractURI = _contractURI;
 
     emit ContractURIChanged(_contractURI);

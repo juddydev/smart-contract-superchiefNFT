@@ -6,6 +6,8 @@ import {ERC2981, IERC2981} from "@openzeppelin/contracts/token/common/ERC2981.so
 import {ERC721URIStorage, ERC721, IERC721, IERC721Metadata} from "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import {IExecutionDelegate} from "../interfaces/IExecutionDelegate.sol";
 
+import {Sig} from "../libraries/Structs.sol";
+
 /**
  * @title SuperChief Maketplace NFT Standard
  * @dev use ERC721URIStorage standard
@@ -44,7 +46,9 @@ contract SuperChiefERC721 is ERC721URIStorage, ERC2981, Ownable {
   ) ERC721(_name, _symbol) {
     executionDelegate = IExecutionDelegate(_executionDelegate);
 
-    setContractURI(_contractURI);
+    contractURI = _contractURI;
+
+    emit ContractURIChanged(_contractURI);
   }
 
   modifier onlyWhitelistedContract() {
@@ -81,8 +85,13 @@ contract SuperChiefERC721 is ERC721URIStorage, ERC2981, Ownable {
   /**
    * @dev Set contract url
    * @param _contractURI IPFS url for contract metadata
+   * @param _sig signature of admin
    */
-  function setContractURI(string memory _contractURI) public onlyOwner {
+  function setContractURI(string memory _contractURI, Sig calldata _sig) public {
+    require(
+      msg.sender == owner() || executionDelegate.validateSign(msg.sender, _sig),
+      "SuperChiefCollection: Permission denied"
+    );
     contractURI = _contractURI;
 
     emit ContractURIChanged(_contractURI);
