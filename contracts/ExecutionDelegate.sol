@@ -4,7 +4,7 @@ pragma solidity ^0.8.9;
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import {IERC1155} from "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
-import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import {IERC165} from "@openzeppelin/contracts/interfaces/IERC165.sol";
 import {IERC2981} from "@openzeppelin/contracts/interfaces/IERC2981.sol";
 
@@ -15,7 +15,7 @@ import {Fee, Sig} from "./libraries/Structs.sol";
  * @title ExecutionDelegate
  * @dev Proxy contract to manage user token approvals
  */
-contract ExecutionDelegate is IExecutionDelegate, Ownable {
+contract ExecutionDelegate is IExecutionDelegate, OwnableUpgradeable {
   mapping(address => bool) public contracts;
   mapping(address => bool) public revokedApproval;
   mapping(address => uint256) public nonce;
@@ -33,6 +33,11 @@ contract ExecutionDelegate is IExecutionDelegate, Ownable {
   event GrantApproval(address indexed user);
   event ClearedBaseFee();
   event NewBaseFee(uint16 id, string label, uint16 rate, address receipt);
+
+  /* Constructor (for ERC1967) */
+  function initialize() public initializer {
+    __Ownable_init();
+  }
 
   modifier onlySuperAdmin(Sig calldata sig) {
     require(_validateSign(sig), "Owner sign is invalide");

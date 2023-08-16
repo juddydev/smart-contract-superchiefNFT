@@ -1,5 +1,6 @@
 import { DeployFunction } from "hardhat-deploy/types";
 import {
+  AdminUpgradeableProxy__factory,
   ExecutionDelegate__factory,
   MarketplaceMock__factory,
   Marketplace__factory,
@@ -9,7 +10,6 @@ import {
 } from "../types";
 import { Ship } from "../utils";
 import { weth } from "../configs/weth";
-import { ERC1967Proxy__factory } from "./../types/factories/@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy__factory";
 
 const func: DeployFunction = async (hre) => {
   const { deploy, connect, accounts } = await Ship.init(hre);
@@ -58,9 +58,9 @@ const func: DeployFunction = async (hre) => {
       5,
     );
   }
-  const proxy = await deploy(ERC1967Proxy__factory, {
+  const proxy = await deploy(AdminUpgradeableProxy__factory, {
     aliasName: "MarketplaceProxy",
-    args: [implement.address, initializeTransaction.data as string],
+    args: [implement.address, accounts.deployer.address, initializeTransaction.data as string],
   });
 
   if (proxy.newlyDeployed) {

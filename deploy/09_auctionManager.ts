@@ -1,9 +1,13 @@
 import { DeployFunction } from "hardhat-deploy/types";
-import { AuctionManager__factory, ERC1967Proxy__factory, ExecutionDelegate__factory } from "../types";
+import {
+  AdminUpgradeableProxy__factory,
+  AuctionManager__factory,
+  ExecutionDelegate__factory,
+} from "../types";
 import { Ship } from "../utils";
 
 const func: DeployFunction = async (hre) => {
-  const { deploy, connect } = await Ship.init(hre);
+  const { deploy, connect, accounts } = await Ship.init(hre);
 
   const executionDelegate = await connect(ExecutionDelegate__factory);
 
@@ -13,9 +17,9 @@ const func: DeployFunction = async (hre) => {
     executionDelegate.address,
   );
 
-  await deploy(ERC1967Proxy__factory, {
+  await deploy(AdminUpgradeableProxy__factory, {
     aliasName: "AuctionManagerProxy",
-    args: [implement.address, initializeTransaction.data as string],
+    args: [implement.address, accounts.deployer.address, initializeTransaction.data as string],
   });
 };
 
