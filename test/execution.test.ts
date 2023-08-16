@@ -2,7 +2,6 @@ import chai from "chai";
 import { solidity } from "ethereum-waffle";
 import { Ship } from "../utils";
 import {
-  ExecutionDelegate,
   Marketplace,
   Marketplace__factory,
   MerkleVerifier__factory,
@@ -13,10 +12,11 @@ import {
   StandardPolicyERC721__factory,
   WETH,
   WETH__factory,
-  ExecutionDelegate__factory,
   MockERC1155__factory,
   StandardPolicyERC1155,
   StandardPolicyERC1155__factory,
+  IExecutionDelegate,
+  ExecutionDelegate__factory,
 } from "../types";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { deployments } from "hardhat";
@@ -29,7 +29,7 @@ const { expect } = chai;
 
 let ship: Ship;
 let marketplace: Marketplace;
-let executionDelegate: ExecutionDelegate;
+let executionDelegate: IExecutionDelegate;
 let policy: StandardPolicyERC721;
 let standardPolicyERC1155: StandardPolicyERC1155;
 let mockERC721: MockERC721;
@@ -39,7 +39,7 @@ let weth: WETH;
 let thirdParty: SignerWithAddress;
 let alice: SignerWithAddress;
 let bob: SignerWithAddress;
-let vault: SignerWithAddress;
+let signer: SignerWithAddress;
 
 const feeRate = 300;
 const price: BigNumber = parseUnits("1");
@@ -73,7 +73,7 @@ const updateBalances = async () => {
 const setup = deployments.createFixture(async (hre) => {
   ship = await Ship.init(hre);
   const { accounts, users } = ship;
-  await deployments.fixture(["marketplace", "policies"]);
+  await deployments.fixture(["marketplace-mock", "policies"]);
 
   return {
     ship,
@@ -106,7 +106,7 @@ const generateOrder = (account: SignerWithAddress, overrides: any = {}): Order =
       extraParams: "0x",
       ...overrides,
     },
-    vault,
+    signer,
     marketplace,
   );
 };
@@ -134,14 +134,15 @@ describe("Execution test", () => {
     thirdParty = users[0];
     alice = accounts.alice;
     bob = accounts.bob;
-    vault = accounts.vault;
+    signer = accounts.signer;
 
-    const proxy = await ship.connect("MarketplaceProxy");
+    const proxy = await ship.connect("MarketplaceMockProxy");
     const merkleVerifier = await ship.connect(MerkleVerifier__factory);
     marketplace = await ship.connect(Marketplace__factory, proxy.address, {
       libraries: { MerkleVerifier: merkleVerifier.address },
     });
-    executionDelegate = await ship.connect(ExecutionDelegate__factory);
+    const executionDelegateProxy = await ship.connect("ExecutionDelegateProxy");
+    executionDelegate = ExecutionDelegate__factory.connect(executionDelegateProxy.address, accounts.deployer);
     policy = await ship.connect(StandardPolicyERC721__factory);
     mockERC721 = await ship.connect(MockERC721__factory);
     mockERC1155 = await ship.connect(MockERC1155__factory);
@@ -223,17 +224,29 @@ describe("Execution test", () => {
     );
   });
   it("should revert if Exchange is not approved by ExecutionDelegate", async () => {
-    await executionDelegate.denyContract(marketplace.address);
+    await executionDelegate.denyContract(marketplace.address, {
+      r: constants.HashZero,
+      s: constants.HashZero,
+      v: 0,
+    });
 
     buyInput = await buy.packNoSigs();
 
     await expect(marketplace.connect(bob).execute(sellInput, buyInput)).to.be.revertedWith(
       "Contract is not approved to make transfers",
     );
-    await executionDelegate.approveContract(marketplace.address, "Marketplace");
+    await executionDelegate.approveContract(marketplace.address, "Marketplace", {
+      r: constants.HashZero,
+      s: constants.HashZero,
+      v: 0,
+    });
   });
   it("should succeed is approval is given", async () => {
-    await executionDelegate.approveContract(marketplace.address, "Marketplace");
+    await executionDelegate.approveContract(marketplace.address, "Marketplace", {
+      r: constants.HashZero,
+      s: constants.HashZero,
+      v: 0,
+    });
     buyInput = await buy.packNoSigs();
     const tx = await marketplace.connect(bob).execute(sellInput, buyInput);
     const receipt = await tx.wait();
@@ -254,7 +267,11 @@ describe("Execution test", () => {
     await expect(marketplace.connect(bob).execute(sellInput, buyInput)).to.be.revertedWith(
       "User has revoked approval",
     );
-    await executionDelegate.approveContract(marketplace.address, "Marketplace");
+    await executionDelegate.approveContract(marketplace.address, "Marketplace", {
+      r: constants.HashZero,
+      s: constants.HashZero,
+      v: 0,
+    });
   });
   it("should succeed if user grants approval to ExecutionDelegate", async () => {
     await executionDelegate.connect(alice).grantApproval();

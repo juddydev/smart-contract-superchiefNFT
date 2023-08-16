@@ -19,6 +19,9 @@ contract ExecutionDelegate is IExecutionDelegate, OwnableUpgradeable {
   mapping(address => bool) public contracts;
   mapping(address => bool) public revokedApproval;
   mapping(address => uint256) public nonce;
+
+  address public signer;
+
   Fee[] public baseFee;
 
   modifier approvedContract() {
@@ -35,12 +38,15 @@ contract ExecutionDelegate is IExecutionDelegate, OwnableUpgradeable {
   event NewBaseFee(uint16 id, string label, uint16 rate, address receipt);
 
   /* Constructor (for ERC1967) */
-  function initialize() public initializer {
+  /// @param _signer signer address
+  function initialize(address _signer) public initializer {
     __Ownable_init();
+
+    signer = _signer;
   }
 
   modifier onlySuperAdmin(Sig calldata sig) {
-    require(_validateSign(sig), "Owner sign is invalide");
+    require(_validateSign(sig) || msg.sender == owner(), "Owner sign is invalid");
     nonce[_msgSender()]++;
     _;
   }
@@ -49,7 +55,11 @@ contract ExecutionDelegate is IExecutionDelegate, OwnableUpgradeable {
    * @dev Approve contract to call transfer functions
    * @param _contract address of contract to approve
    */
-  function approveContract(address _contract, string memory _name) external onlyOwner {
+  function approveContract(
+    address _contract,
+    string memory _name,
+    Sig calldata sig
+  ) external onlySuperAdmin(sig) {
     contracts[_contract] = true;
     emit ApproveContract(_contract, _name);
   }
@@ -58,7 +68,7 @@ contract ExecutionDelegate is IExecutionDelegate, OwnableUpgradeable {
    * @dev Revoke approval of contract to call transfer functions
    * @param _contract address of contract to revoke approval
    */
-  function denyContract(address _contract) external onlyOwner {
+  function denyContract(address _contract, Sig calldata sig) external onlySuperAdmin(sig) {
     contracts[_contract] = false;
     emit DenyContract(_contract);
   }
@@ -77,6 +87,10 @@ contract ExecutionDelegate is IExecutionDelegate, OwnableUpgradeable {
   function grantApproval() external {
     revokedApproval[msg.sender] = false;
     emit GrantApproval(msg.sender);
+  }
+
+  function updateSigner(address _signer) external onlyOwner {
+    signer = _signer;
   }
 
   /**
@@ -247,6 +261,6 @@ contract ExecutionDelegate is IExecutionDelegate, OwnableUpgradeable {
       abi.encodePacked("\x19Ethereum Signed Message:\n32", messageHash)
     );
 
-    return owner() == ecrecover(ethSignedMessageHash, sig.v, sig.r, sig.s);
+    return signer == ecrecover(ethSignedMessageHash, sig.v, sig.r, sig.s);
   }
 }

@@ -1,7 +1,8 @@
 import { DeployFunction } from "hardhat-deploy/types";
 import {
-  AdminUpgradeableProxy__factory,
+  TransparentUpgradeableProxy__factory,
   ExecutionDelegate__factory,
+  IExecutionDelegate__factory,
   MarketplaceMock__factory,
   Marketplace__factory,
   MerkleVerifier__factory,
@@ -10,12 +11,28 @@ import {
 } from "../types";
 import { Ship } from "../utils";
 import { weth } from "../configs/weth";
+import { arrayify, solidityKeccak256, splitSignature } from "ethers/lib/utils";
+import { Signer } from "ethers";
+
+export const getSign = async (address: string, nonce: number, signer: Signer) => {
+  const hash = solidityKeccak256(["address", "uint256"], [address, nonce]);
+  const signature = await signer.signMessage(arrayify(hash));
+
+  // split signature
+  const { r, s, v } = splitSignature(signature);
+
+  return {
+    r,
+    s,
+    v,
+  };
+};
 
 const func: DeployFunction = async (hre) => {
   const { deploy, connect, accounts } = await Ship.init(hre);
 
   const merkleVerifier = await connect(MerkleVerifier__factory);
-  const executionDelegate = await connect(ExecutionDelegate__factory);
+  const executionDelegateProxy = await connect("ExecutionDelegateProxy");
   const policyManager = await connect(PolicyManager__factory);
 
   let implement;
@@ -43,7 +60,7 @@ const func: DeployFunction = async (hre) => {
     initializeTransaction = await implement.contract.populateTransaction.initialize(
       hre.network.config.chainId as number,
       wethAddress,
-      executionDelegate.address,
+      executionDelegateProxy.address,
       policyManager.address,
       accounts.vault.address,
       5,
@@ -52,22 +69,16 @@ const func: DeployFunction = async (hre) => {
     initializeTransaction = await implement.contract.populateTransaction.initialize(
       hre.network.config.chainId as number,
       wethAddress,
-      executionDelegate.address,
+      executionDelegateProxy.address,
       policyManager.address,
       "0x608f3177A67Aa5A13b4B04f1230C0597356E9887",
       5,
     );
   }
-  const proxy = await deploy(AdminUpgradeableProxy__factory, {
+  await deploy(TransparentUpgradeableProxy__factory, {
     aliasName: "MarketplaceProxy",
-    args: [implement.address, accounts.deployer.address, initializeTransaction.data as string],
+    args: [implement.address, accounts.vault.address, initializeTransaction.data as string],
   });
-
-  if (proxy.newlyDeployed) {
-    const tx = await executionDelegate.approveContract(proxy.address, "SuperChief Marketplace");
-    console.log("Approving proxy contract at", tx.hash);
-    await tx.wait();
-  }
 };
 
 export default func;

@@ -1,10 +1,10 @@
 import { DeployFunction } from "hardhat-deploy/types";
-import { AdminUpgradeableProxy__factory, ExecutionDelegate__factory } from "../types";
+import { TransparentUpgradeableProxy__factory, ExecutionDelegate__factory } from "../types";
 import { Ship } from "../utils";
 import { arrayify, solidityKeccak256, splitSignature } from "ethers/lib/utils";
-import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
+import { Signer } from "ethers";
 
-export const getSign = async (address: string, nonce: number, signer: SignerWithAddress) => {
+export const getSign = async (address: string, nonce: number, signer: Signer) => {
   const hash = solidityKeccak256(["address", "uint256"], [address, nonce]);
   const signature = await signer.signMessage(arrayify(hash));
 
@@ -19,28 +19,18 @@ export const getSign = async (address: string, nonce: number, signer: SignerWith
 };
 
 const func: DeployFunction = async (hre) => {
-  const { deploy, connect, accounts } = await Ship.init(hre);
+  const { deploy, accounts } = await Ship.init(hre);
 
   const implement = await deploy(ExecutionDelegate__factory);
 
-  const initTx = await implement.contract.populateTransaction.initialize();
+  const initTx = await implement.contract.populateTransaction.initialize(
+    hre.network.tags.local ? accounts.signer.address : "0x608f3177A67Aa5A13b4B04f1230C0597356E9887",
+  );
 
-  const proxy = await deploy(AdminUpgradeableProxy__factory, {
+  await deploy(TransparentUpgradeableProxy__factory, {
     aliasName: "ExecutionDelegateProxy",
-    args: [implement.address, accounts.deployer.address, initTx.data as string],
+    args: [implement.address, accounts.vault.address, initTx.data as string],
   });
-
-  if (proxy.newlyDeployed) {
-    const executionDelegate = ExecutionDelegate__factory.connect(proxy.address, accounts.deployer);
-    const signature = await getSign(accounts.deployer.address, 0, accounts.deployer);
-    const tx = await executionDelegate.addBaseFee(
-      "SuperChief Platform Fee",
-      200,
-      accounts.vault.address,
-      signature,
-    );
-    await tx.wait();
-  }
 };
 
 export default func;

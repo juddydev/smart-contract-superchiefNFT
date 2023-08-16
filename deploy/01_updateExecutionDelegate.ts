@@ -1,15 +1,16 @@
 import { DeployFunction } from "hardhat-deploy/types";
-import { ExecutionDelegate__factory, ITransparentUpgradeableProxy } from "../types";
+import { ExecutionDelegate__factory, ITransparentUpgradeableProxy__factory } from "../types";
 import { Ship } from "../utils";
 
 const func: DeployFunction = async (hre) => {
-  const { deploy, connect } = await Ship.init(hre);
+  const { deploy, connect, accounts } = await Ship.init(hre);
 
   const implement = await deploy(ExecutionDelegate__factory);
 
-  const proxy = (await connect("ExecutionDelegateProxy")) as ITransparentUpgradeableProxy;
+  const proxy = await connect("ExecutionDelegateProxy");
+  const contract = ITransparentUpgradeableProxy__factory.connect(proxy.address, accounts.vault);
 
-  const tx = await proxy.upgradeTo(implement.address);
+  const tx = await contract.upgradeTo(implement.address);
   await tx.wait();
 };
 
