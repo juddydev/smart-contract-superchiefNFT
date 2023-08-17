@@ -275,10 +275,6 @@ contract AuctionManager is
     Fee[] memory fees,
     uint256 price
   ) internal {
-    if (paymentToken == address(0)) {
-      require(msg.value == price);
-    }
-
     /* Take fee. */
     uint256 receiveAmount = _transferFees(fees, paymentToken, price);
 
