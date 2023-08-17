@@ -1,11 +1,18 @@
 import { DeployFunction } from "hardhat-deploy/types";
-import { Marketplace__factory, ITransparentUpgradeableProxy__factory } from "../types";
+import {
+  Marketplace__factory,
+  ITransparentUpgradeableProxy__factory,
+  MerkleVerifier__factory,
+} from "../types";
 import { Ship } from "../utils";
 
 const func: DeployFunction = async (hre) => {
   const { deploy, connect, accounts } = await Ship.init(hre);
 
-  const implement = await deploy(Marketplace__factory);
+  const merkleVerifier = await connect(MerkleVerifier__factory);
+  const implement = await deploy(Marketplace__factory, {
+    libraries: { MerkleVerifier: merkleVerifier.address },
+  });
 
   const proxy = await connect("MarketplaceProxy");
   const contract = ITransparentUpgradeableProxy__factory.connect(proxy.address, accounts.vault);
