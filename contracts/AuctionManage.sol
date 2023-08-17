@@ -39,6 +39,7 @@ contract AuctionManager is
     address indexed collection,
     address paymentToken,
     uint256 tokenId,
+    uint256 amount,
     uint256 minPrice,
     uint256 startTime,
     uint256 endTime,
@@ -72,6 +73,7 @@ contract AuctionManager is
    * @notice create auction
    * @param _collection address of collection
    * @param _tokenId token id of nft
+   * @param _amount amount of nft
    * @param _paymentToken address of bid token
    * @param _minPrice minimum price of bid
    * @param _minWinPercent minimum win percent
@@ -82,6 +84,7 @@ contract AuctionManager is
   function createAuction(
     address _collection,
     uint256 _tokenId,
+    uint256 _amount,
     address _paymentToken,
     uint256 _minPrice,
     uint256 _minWinPercent,
@@ -92,6 +95,7 @@ contract AuctionManager is
     require(_startTime >= block.timestamp, "Auction: invalid start time");
     AssetType assetType;
     if (IERC165(_collection).supportsInterface(type(IERC721).interfaceId)) {
+      require(_amount == 1, "Auction: invalid token amount");
       assetType = AssetType.ERC721;
     } else if (IERC165(_collection).supportsInterface(type(IERC1155).interfaceId)) {
       assetType = AssetType.ERC1155;
@@ -111,7 +115,7 @@ contract AuctionManager is
     auction.startTime = _startTime;
     auction.endTime = _startTime + _duration;
     auction.minWinPercent = _minWinPercent;
-    auction.amount = 1;
+    auction.amount = _amount;
     auction.owner = msg.sender;
 
     for (uint256 i = 0; i < _fees.length; i++) {
@@ -130,6 +134,7 @@ contract AuctionManager is
       _collection,
       _paymentToken,
       _tokenId,
+      _amount,
       _minPrice,
       _startTime,
       _startTime + _duration,
