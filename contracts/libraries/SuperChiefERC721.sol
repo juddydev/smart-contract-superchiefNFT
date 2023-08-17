@@ -55,7 +55,7 @@ contract SuperChiefERC721 is ERC721URIStorage, ERC2981, Ownable {
     require(
       !_isContract(msg.sender) ||
         msg.sender == address(executionDelegate) ||
-        executionDelegate.contracts(msg.sender),
+        !executionDelegate.blacklisted(msg.sender),
       "SuperChiefCollection: invalid executor"
     );
     _;

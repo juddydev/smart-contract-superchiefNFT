@@ -19,6 +19,7 @@ contract ExecutionDelegate is IExecutionDelegate, OwnableUpgradeable {
   mapping(address => bool) public contracts;
   mapping(address => bool) public revokedApproval;
   mapping(address => uint256) public nonce;
+  mapping(address => bool) public blacklisted;
 
   address public signer;
 
@@ -31,6 +32,9 @@ contract ExecutionDelegate is IExecutionDelegate, OwnableUpgradeable {
 
   event ApproveContract(address indexed _contract, string name);
   event DenyContract(address indexed _contract);
+
+  event AddedBlackList(address _to);
+  event RemovedBlackList(address _to);
 
   event RevokeApproval(address indexed user);
   event GrantApproval(address indexed user);
@@ -54,12 +58,13 @@ contract ExecutionDelegate is IExecutionDelegate, OwnableUpgradeable {
   /**
    * @dev Approve contract to call transfer functions
    * @param _contract address of contract to approve
+   * @param _sig sign of owner
    */
   function approveContract(
     address _contract,
     string memory _name,
-    Sig calldata sig
-  ) external onlySuperAdmin(sig) {
+    Sig calldata _sig
+  ) external onlySuperAdmin(_sig) {
     contracts[_contract] = true;
     emit ApproveContract(_contract, _name);
   }
@@ -67,10 +72,31 @@ contract ExecutionDelegate is IExecutionDelegate, OwnableUpgradeable {
   /**
    * @dev Revoke approval of contract to call transfer functions
    * @param _contract address of contract to revoke approval
+   * @param _sig sign of owner
    */
-  function denyContract(address _contract, Sig calldata sig) external onlySuperAdmin(sig) {
+  function denyContract(address _contract, Sig calldata _sig) external onlySuperAdmin(_sig) {
     contracts[_contract] = false;
     emit DenyContract(_contract);
+  }
+
+  /**
+   * @dev adds address to blacklist
+   * @param _to address to add blacklist
+   * @param _sig sign of owner
+   */
+  function addBlacklist(address _to, Sig calldata _sig) external onlySuperAdmin(_sig) {
+    blacklisted[_to] = true;
+    emit AddedBlackList(_to);
+  }
+
+  /**
+   * @dev adds address to blacklist
+   * @param _to address to add blacklist
+   * @param _sig sign of owner
+   */
+  function removeBlacklist(address _to, Sig calldata _sig) external onlySuperAdmin(_sig) {
+    blacklisted[_to] = false;
+    emit RemovedBlackList(_to);
   }
 
   /**
