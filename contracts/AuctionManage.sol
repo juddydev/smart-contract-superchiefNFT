@@ -50,7 +50,7 @@ contract AuctionManager is
   /// @dev emit this event when new bid added
   event NewBid(bytes32 indexed id, address indexed bidder, uint256 indexed bidPrice);
   /// @dev emit this event when auction finished
-  event Finished(bytes32 indexed id, address indexed winner, uint256 indexed bidPrice);
+  event AuctionFinished(bytes32 indexed id, address indexed winner, uint256 indexed bidPrice);
   /// @dev emit this event when bid makes in 15 minutes from endTime
   event AuctionTimeExtended(bytes32 indexed id, uint256 endTime);
 
@@ -232,7 +232,7 @@ contract AuctionManager is
       auctions[_id].assetType
     );
 
-    emit Finished(_id, assetReceiver, auctions[_id].bidPrice);
+    emit AuctionFinished(_id, assetReceiver, auctions[_id].bidPrice);
   }
 
   /* Setters */

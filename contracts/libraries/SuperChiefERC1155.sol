@@ -108,7 +108,7 @@ contract SuperChiefERC1155 is ERC1155URIStorage, ERC1155Holder, ERC2981, Ownable
    * @param _contractURI IPFS url for contract metadata
    * @param _sig signature of admin
    */
-  function setContractURI(string memory _contractURI, Sig calldata _sig) public {
+  function setContractURI(string memory _contractURI, Sig calldata _sig) external {
     require(
       msg.sender == owner() || executionDelegate.validateSign(msg.sender, _sig),
       "SuperChiefCollection: Permission denied"

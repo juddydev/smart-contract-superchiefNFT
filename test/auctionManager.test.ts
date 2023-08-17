@@ -77,6 +77,7 @@ describe("AuctionManager test", () => {
       auctionManager.createAuction(
         nft.address,
         1,
+        1,
         token.address,
         parseUnits("1"),
         105,
@@ -136,7 +137,7 @@ describe("AuctionManager test", () => {
     );
 
     await expect(auctionManager.connect(bob).finish(auctionId))
-      .to.emit(auctionManager, "Finished")
+      .to.emit(auctionManager, "AuctionFinished")
       .withArgs(auctionId, bob.address, parseUnits("1.5"));
   });
 });

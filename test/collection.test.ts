@@ -50,14 +50,25 @@ describe("SuperChief Collection test", () => {
 
   it("contract uri test", async () => {
     expect(await collection.contractURI()).to.eq("");
-    await expect(collection.setContractURI("https://fake.uri"))
+    await expect(
+      collection.setContractURI("https://fake.uri", {
+        r: constants.HashZero,
+        s: constants.HashZero,
+        v: 0,
+      }),
+    )
       .to.emit(collection, "ContractURIChanged")
       .withArgs("https://fake.uri");
 
+    console.log(await collection.owner(), alice.address);
     // only owner can change contract uri
-    await expect(collection.connect(alice).setContractURI("https://alice.fake")).to.revertedWith(
-      "Ownable: caller is not the owner",
-    );
+    await expect(
+      collection.connect(alice).setContractURI("https://alice.fake", {
+        r: constants.HashZero,
+        s: constants.HashZero,
+        v: 0,
+      }),
+    ).to.revertedWith("SuperChiefCollection: Permission denied");
   });
 
   it("mint functionality test", async () => {
