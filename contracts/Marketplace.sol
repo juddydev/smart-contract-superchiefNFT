@@ -439,7 +439,7 @@ contract Marketplace is IMarketplace, ReentrancyGuard, EIP712, OwnableUpgradeabl
   }
 
   /**
-   * @dev Charge a fee in ETH or WETH
+   * @dev Charge a fee in ETH or ERC20
    * @param fees fees to distribute
    * @param paymentToken address of token to pay in
    * @param from address to charge fees
@@ -466,7 +466,7 @@ contract Marketplace is IMarketplace, ReentrancyGuard, EIP712, OwnableUpgradeabl
   }
 
   /**
-   * @dev Transfer amount in ETH or WETH
+   * @dev Transfer amount in ETH or ERC20
    * @param paymentToken address of token to pay in
    * @param from token sender
    * @param to token recipient
@@ -480,11 +480,9 @@ contract Marketplace is IMarketplace, ReentrancyGuard, EIP712, OwnableUpgradeabl
     if (paymentToken == address(0)) {
       /* Transfer funds in ETH. */
       payable(to).transfer(amount);
-    } else if (paymentToken == weth) {
-      /* Transfer funds in WETH. */
-      executionDelegate.transferERC20(weth, from, to, amount);
     } else {
-      revert("Invalid payment token");
+      /* Transfer funds in ERC20. */
+      executionDelegate.transferERC20(paymentToken, from, to, amount);
     }
   }
 

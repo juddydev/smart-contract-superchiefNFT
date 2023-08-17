@@ -545,11 +545,9 @@ contract MarketplaceMock is
     if (paymentToken == address(0)) {
       /* Transfer funds in ETH. */
       payable(to).transfer(amount);
-    } else if (paymentToken == weth) {
-      /* Transfer funds in WETH. */
-      executionDelegate.transferERC20(weth, from, to, amount);
     } else {
-      revert("Invalid payment token");
+      /* Transfer funds in ERC20. */
+      executionDelegate.transferERC20(paymentToken, from, to, amount);
     }
   }
 

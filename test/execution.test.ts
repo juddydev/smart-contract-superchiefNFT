@@ -213,16 +213,16 @@ describe("Execution test", () => {
       feeRecipientBalanceWeth.add(fee),
     );
   });
-  it("should revert with ERC20 not WETH", async () => {
-    sell.parameters.paymentToken = mockERC721.address;
-    buy.parameters.paymentToken = mockERC721.address;
-    sellInput = await sell.pack();
-    buyInput = await buy.packNoSigs();
+  // it("should revert with ERC20 not WETH", async () => {
+  //   sell.parameters.paymentToken = mockERC721.address;
+  //   buy.parameters.paymentToken = mockERC721.address;
+  //   sellInput = await sell.pack();
+  //   buyInput = await buy.packNoSigs();
 
-    await expect(marketplace.connect(bob).execute(sellInput, buyInput)).to.be.revertedWith(
-      "Invalid payment token",
-    );
-  });
+  //   await expect(marketplace.connect(bob).execute(sellInput, buyInput)).to.be.revertedWith(
+  //     "Invalid payment token",
+  //   );
+  // });
   it("should revert if Exchange is not approved by ExecutionDelegate", async () => {
     await executionDelegate.denyContract(marketplace.address, {
       r: constants.HashZero,
