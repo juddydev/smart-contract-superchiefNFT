@@ -72,20 +72,9 @@ describe("AuctionManager test", () => {
       ["address", "address", "uint256", "address", "uint256", "uint256"],
       [deployer.address, nft.address, 1, token.address, parseUnits("1"), 100],
     );
-    const current = await getTime();
     await expect(
-      auctionManager.createAuction(
-        nft.address,
-        1,
-        1,
-        token.address,
-        parseUnits("1"),
-        105,
-        current + 10,
-        24 * 60 * 60,
-        [],
-      ),
-    ).to.emit(auctionManager, "AuctionStarted");
+      auctionManager.createAuction(nft.address, 1, 1, token.address, parseUnits("1"), 105, 24 * 60 * 60, []),
+    ).to.emit(auctionManager, "NewAuction");
 
     const auctionData = await auctionManager.auctions(auctionId);
     expect(auctionData.assetType).to.eq(0);

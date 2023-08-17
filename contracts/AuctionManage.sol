@@ -33,26 +33,26 @@ contract AuctionManager is
   /// @dev execution delegate
   IExecutionDelegate public executionDelegate;
 
-  /// @dev emit this event when auction started
-  event AuctionStarted(
+  /// @dev emit this event when auction added
+  event NewAuction(
     bytes32 indexed id,
     address indexed collection,
     address paymentToken,
     uint256 tokenId,
     uint256 amount,
     uint256 minPrice,
-    uint256 startTime,
-    uint256 endTime,
+    uint256 duration,
     Fee[] fees
   );
-
-  event NewExecutionDelegate(IExecutionDelegate executionDelegate);
+  /// @dev emit this event when auction started
+  event AuctionStarted(bytes32 indexed id, uint256 startTime, uint256 endTime);
   /// @dev emit this event when new bid added
   event NewBid(bytes32 indexed id, address indexed bidder, uint256 indexed bidPrice);
   /// @dev emit this event when auction finished
   event AuctionFinished(bytes32 indexed id, address indexed winner, uint256 indexed bidPrice);
   /// @dev emit this event when bid makes in 15 minutes from endTime
   event AuctionTimeExtended(bytes32 indexed id, uint256 endTime);
+  event NewExecutionDelegate(IExecutionDelegate executionDelegate);
 
   constructor() {}
 
@@ -77,7 +77,6 @@ contract AuctionManager is
    * @param _paymentToken address of bid token
    * @param _minPrice minimum price of bid
    * @param _minWinPercent minimum win percent
-   * @param _startTime time to start auction
    * @param _duration duration of auction
    * @param _fees fee data
    */
@@ -88,11 +87,9 @@ contract AuctionManager is
     address _paymentToken,
     uint256 _minPrice,
     uint256 _minWinPercent,
-    uint256 _startTime,
     uint256 _duration,
     Fee[] memory _fees
   ) external {
-    require(_startTime >= block.timestamp, "Auction: invalid start time");
     AssetType assetType;
     if (IERC165(_collection).supportsInterface(type(IERC721).interfaceId)) {
       require(_amount == 1, "Auction: invalid token amount");
@@ -112,8 +109,7 @@ contract AuctionManager is
     auction.tokenId = _tokenId;
     auction.paymentToken = _paymentToken;
     auction.minPrice = _minPrice;
-    auction.startTime = _startTime;
-    auction.endTime = _startTime + _duration;
+    auction.duration = _duration;
     auction.minWinPercent = _minWinPercent;
     auction.amount = _amount;
     auction.owner = msg.sender;
@@ -129,15 +125,14 @@ contract AuctionManager is
       IERC1155(_collection).safeTransferFrom(msg.sender, address(this), _tokenId, 1, "");
     }
 
-    emit AuctionStarted(
+    emit NewAuction(
       id,
       _collection,
       _paymentToken,
       _tokenId,
       _amount,
       _minPrice,
-      _startTime,
-      _startTime + _duration,
+      _duration,
       auction.fees
     );
   }
@@ -150,14 +145,25 @@ contract AuctionManager is
    * @param _price new bidding price
    */
   function bid(bytes32 _id, uint256 _price) external payable nonReentrant {
-    require(block.timestamp < auctions[_id].endTime, "Auction: This auction already finished");
+    require(
+      block.timestamp < auctions[_id].endTime || auctions[_id].endTime == 0,
+      "Auction: This auction already finished"
+    );
     require(_price >= auctions[_id].minPrice, "Auction: bid price is low than minimum price");
     require(
-      _price > (auctions[_id].bidPrice * auctions[_id].minWinPercent) / 100,
+      _price > (auctions[_id].bidPrice * auctions[_id].minWinPercent) / 100 ||
+        auctions[_id].lastBidder == address(0),
       "Auction: bid price is low than minimum win price"
     );
 
     Auction storage auction = auctions[_id];
+
+    if (auction.endTime == 0) {
+      auction.startTime = block.timestamp;
+      auction.endTime = block.timestamp + auction.duration;
+
+      emit AuctionStarted(_id, auction.startTime, auction.endTime);
+    }
 
     address previousBidder = auction.lastBidder;
     uint256 previousPrice = auction.bidPrice;

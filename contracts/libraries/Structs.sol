@@ -58,6 +58,7 @@ struct Auction {
   uint256 minWinPercent;
   uint256 startTime;
   uint256 endTime;
+  uint256 duration;
   address owner;
   address lastBidder;
   uint256 bidPrice;
