@@ -58,13 +58,8 @@ contract ExecutionDelegate is IExecutionDelegate, OwnableUpgradeable {
   /**
    * @dev Approve contract to call transfer functions
    * @param _contract address of contract to approve
-   * @param _sig sign of owner
    */
-  function approveContract(
-    address _contract,
-    string memory _name,
-    Sig calldata _sig
-  ) external onlySuperAdmin(_sig) {
+  function approveContract(address _contract, string memory _name) external onlyOwner {
     contracts[_contract] = true;
     emit ApproveContract(_contract, _name);
   }
@@ -72,9 +67,8 @@ contract ExecutionDelegate is IExecutionDelegate, OwnableUpgradeable {
   /**
    * @dev Revoke approval of contract to call transfer functions
    * @param _contract address of contract to revoke approval
-   * @param _sig sign of owner
    */
-  function denyContract(address _contract, Sig calldata _sig) external onlySuperAdmin(_sig) {
+  function denyContract(address _contract) external onlyOwner {
     contracts[_contract] = false;
     emit DenyContract(_contract);
   }
