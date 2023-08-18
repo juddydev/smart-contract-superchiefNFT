@@ -50,6 +50,8 @@ contract AuctionManager is
   event NewBid(bytes32 indexed id, address indexed bidder, uint256 indexed bidPrice);
   /// @dev emit this event when auction finished
   event AuctionFinished(bytes32 indexed id, address indexed winner, uint256 indexed bidPrice);
+  /// @dev emit this event when auction canceled
+  event AuctionCanceled(bytes32 indexed id);
   /// @dev emit this event when bid makes in 15 minutes from endTime
   event AuctionTimeExtended(bytes32 indexed id, uint256 endTime);
   event NewExecutionDelegate(IExecutionDelegate executionDelegate);
@@ -204,19 +206,12 @@ contract AuctionManager is
    * @param _id id of auction
    */
   function finish(bytes32 _id) external {
+    require(auctions[_id].endTime > 0, "Auction: auction not started yet");
     require(block.timestamp > auctions[_id].endTime, "Auction: auction not finished");
     require(
       auctions[_id].owner == msg.sender || auctions[_id].lastBidder == msg.sender,
       "Auction: don't have permission to finish"
     );
-
-    // get asset receiver
-    address assetReceiver;
-    if (auctions[_id].lastBidder == address(0)) {
-      assetReceiver = auctions[_id].owner;
-    } else {
-      assetReceiver = auctions[_id].lastBidder;
-    }
 
     Fee[] memory fees = executionDelegate.calcuateFee(
       auctions[_id].collection,
@@ -232,13 +227,34 @@ contract AuctionManager is
     );
     _executeTokenTransfer(
       auctions[_id].collection,
-      assetReceiver,
+      auctions[_id].lastBidder,
       auctions[_id].tokenId,
       auctions[_id].amount,
       auctions[_id].assetType
     );
 
-    emit AuctionFinished(_id, assetReceiver, auctions[_id].bidPrice);
+    emit AuctionFinished(_id, auctions[_id].lastBidder, auctions[_id].bidPrice);
+  }
+
+  /**
+   * @notice cancel auction
+   * @dev This function cancels auction.
+   *      Sends asset to owner.
+   * @param _id id of auction
+   */
+  function cancel(bytes32 _id) external {
+    require(auctions[_id].endTime == 0, "Auction: auction already started");
+    require(auctions[_id].owner == msg.sender, "Auction: not owner");
+
+    _executeTokenTransfer(
+      auctions[_id].collection,
+      auctions[_id].owner,
+      auctions[_id].tokenId,
+      auctions[_id].amount,
+      auctions[_id].assetType
+    );
+
+    emit AuctionCanceled(_id);
   }
 
   /* Setters */

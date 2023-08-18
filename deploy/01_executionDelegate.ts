@@ -4,20 +4,6 @@ import { Ship } from "../utils";
 import { arrayify, solidityKeccak256, splitSignature } from "ethers/lib/utils";
 import { Signer } from "ethers";
 
-export const getSign = async (address: string, nonce: number, signer: Signer) => {
-  const hash = solidityKeccak256(["address", "uint256"], [address, nonce]);
-  const signature = await signer.signMessage(arrayify(hash));
-
-  // split signature
-  const { r, s, v } = splitSignature(signature);
-
-  return {
-    r,
-    s,
-    v,
-  };
-};
-
 const func: DeployFunction = async (hre) => {
   const { deploy, accounts } = await Ship.init(hre);
 

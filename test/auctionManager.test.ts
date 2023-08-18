@@ -53,7 +53,9 @@ describe("AuctionManager test", () => {
     auctionManager = await ship.connect(AuctionManager__factory, proxy.address);
 
     await nft.mint(deployer.address, 1);
+    await nft.mint(deployer.address, 2);
     await nft.approve(auctionManager.address, 1);
+    await nft.approve(auctionManager.address, 2);
 
     // distribute tokens to do test
     await token.connect(deployer).transfer(alice.address, parseUnits("10"));
@@ -128,5 +130,20 @@ describe("AuctionManager test", () => {
     await expect(auctionManager.connect(bob).finish(auctionId))
       .to.emit(auctionManager, "AuctionFinished")
       .withArgs(auctionId, bob.address, parseUnits("1.5"));
+  });
+
+  it("cancel auction", async () => {
+    await expect(auctionManager.cancel(auctionId)).to.revertedWith("Auction: auction already started");
+
+    await advanceBlockTo(149);
+    auctionId = solidityKeccak256(
+      ["address", "address", "uint256", "address", "uint256", "uint256"],
+      [deployer.address, nft.address, 2, token.address, parseUnits("1"), 150],
+    );
+    await expect(
+      auctionManager.createAuction(nft.address, 2, 1, token.address, parseUnits("1"), 105, 24 * 60 * 60, []),
+    ).to.emit(auctionManager, "NewAuction");
+
+    await expect(auctionManager.connect(alice).cancel(auctionId)).to.be.revertedWith("Auction: not owner");
   });
 });
