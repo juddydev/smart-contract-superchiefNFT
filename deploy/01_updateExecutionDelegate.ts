@@ -16,11 +16,6 @@ const func: DeployFunction = async (hre) => {
 
   const tx = await contract.upgradeTo(implement.address);
   await tx.wait();
-
-  const marketplace = await connect("MarketplaceProxy");
-  const executionDelegate = IExecutionDelegate__factory.connect(proxy.address, accounts.deployer);
-  const tx1 = await executionDelegate.approveContract(marketplace.address, "Marketplace");
-  await tx1.wait();
 };
 
 export default func;

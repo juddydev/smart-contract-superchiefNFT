@@ -30,10 +30,10 @@ contract ExecutionDelegate is IExecutionDelegate, OwnableUpgradeable {
     _;
   }
 
-  event ApproveContract(address indexed _contract, string name);
+  event ApproveContract(address indexed _contract);
   event DenyContract(address indexed _contract);
 
-  event AddedBlackList(address _to);
+  event AddedBlackList(address _to, string name);
   event RemovedBlackList(address _to);
 
   event RevokeApproval(address indexed user);
@@ -59,9 +59,9 @@ contract ExecutionDelegate is IExecutionDelegate, OwnableUpgradeable {
    * @dev Approve contract to call transfer functions
    * @param _contract address of contract to approve
    */
-  function approveContract(address _contract, string memory _name) external onlyOwner {
+  function approveContract(address _contract) external onlyOwner {
     contracts[_contract] = true;
-    emit ApproveContract(_contract, _name);
+    emit ApproveContract(_contract);
   }
 
   /**
@@ -76,11 +76,16 @@ contract ExecutionDelegate is IExecutionDelegate, OwnableUpgradeable {
   /**
    * @dev adds address to blacklist
    * @param _to address to add blacklist
+   * @param _name name of contract
    * @param _sig sign of owner
    */
-  function addBlacklist(address _to, Sig calldata _sig) external onlySuperAdmin(_sig) {
+  function addBlacklist(
+    address _to,
+    string memory _name,
+    Sig calldata _sig
+  ) external onlySuperAdmin(_sig) {
     blacklisted[_to] = true;
-    emit AddedBlackList(_to);
+    emit AddedBlackList(_to, _name);
   }
 
   /**

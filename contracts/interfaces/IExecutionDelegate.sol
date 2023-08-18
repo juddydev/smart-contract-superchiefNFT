@@ -8,7 +8,7 @@ interface IExecutionDelegate {
 
   function blacklisted(address to) external view returns (bool);
 
-  function approveContract(address _contract, string memory _name) external;
+  function approveContract(address _contract) external;
 
   function denyContract(address _contract) external;
 
