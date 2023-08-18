@@ -224,29 +224,17 @@ describe("Execution test", () => {
   //   );
   // });
   it("should revert if Exchange is not approved by ExecutionDelegate", async () => {
-    await executionDelegate.denyContract(marketplace.address, {
-      r: constants.HashZero,
-      s: constants.HashZero,
-      v: 0,
-    });
+    await executionDelegate.denyContract(marketplace.address);
 
     buyInput = await buy.packNoSigs();
 
     await expect(marketplace.connect(bob).execute(sellInput, buyInput)).to.be.revertedWith(
       "Contract is not approved to make transfers",
     );
-    await executionDelegate.approveContract(marketplace.address, "Marketplace", {
-      r: constants.HashZero,
-      s: constants.HashZero,
-      v: 0,
-    });
+    await executionDelegate.approveContract(marketplace.address);
   });
   it("should succeed is approval is given", async () => {
-    await executionDelegate.approveContract(marketplace.address, "Marketplace", {
-      r: constants.HashZero,
-      s: constants.HashZero,
-      v: 0,
-    });
+    await executionDelegate.approveContract(marketplace.address);
     buyInput = await buy.packNoSigs();
     const tx = await marketplace.connect(bob).execute(sellInput, buyInput);
     const receipt = await tx.wait();
@@ -267,11 +255,7 @@ describe("Execution test", () => {
     await expect(marketplace.connect(bob).execute(sellInput, buyInput)).to.be.revertedWith(
       "User has revoked approval",
     );
-    await executionDelegate.approveContract(marketplace.address, "Marketplace", {
-      r: constants.HashZero,
-      s: constants.HashZero,
-      v: 0,
-    });
+    await executionDelegate.approveContract(marketplace.address);
   });
   it("should succeed if user grants approval to ExecutionDelegate", async () => {
     await executionDelegate.connect(alice).grantApproval();
@@ -295,6 +279,10 @@ describe("Execution test", () => {
     buy.parameters.paymentToken = constants.AddressZero;
     sellInput = await sell.pack();
     buyInput = await buy.packNoSigs();
+
+    console.dir(sellInput, {
+      depth: 100,
+    });
 
     const tx = await marketplace.connect(bob).execute(sellInput, buyInput, { value: price });
     const receipt = await tx.wait();

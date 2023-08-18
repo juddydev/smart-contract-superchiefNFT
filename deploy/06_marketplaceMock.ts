@@ -4,28 +4,11 @@ import {
   MerkleVerifier__factory,
   PolicyManager__factory,
   WETH__factory,
-  ERC1967Proxy__factory,
   IExecutionDelegate__factory,
   TransparentUpgradeableProxy__factory,
 } from "../types";
 import { Ship } from "../utils";
 import { weth } from "../configs/weth";
-import { arrayify, solidityKeccak256, splitSignature } from "ethers/lib/utils";
-import { Signer } from "ethers";
-
-export const getSign = async (address: string, nonce: number, signer: Signer) => {
-  const hash = solidityKeccak256(["address", "uint256"], [address, nonce]);
-  const signature = await signer.signMessage(arrayify(hash));
-
-  // split signature
-  const { r, s, v } = splitSignature(signature);
-
-  return {
-    r,
-    s,
-    v,
-  };
-};
 
 const func: DeployFunction = async (hre) => {
   const { deploy, connect, accounts } = await Ship.init(hre);
@@ -58,12 +41,11 @@ const func: DeployFunction = async (hre) => {
   });
 
   if (proxy.newlyDeployed) {
-    const signature = await getSign(accounts.deployer.address, 2, accounts.vault);
     const executionDelegate = IExecutionDelegate__factory.connect(
       executionDelegateProxy.address,
       accounts.deployer,
     );
-    const tx = await executionDelegate.approveContract(proxy.address, "SuperChief Marketplace", signature);
+    const tx = await executionDelegate.approveContract(proxy.address);
     console.log("Approving proxy contract at");
     await tx.wait();
   }
