@@ -41,6 +41,7 @@ contract AuctionManager is
     uint256 tokenId,
     uint256 amount,
     uint256 minPrice,
+    uint256 startTime,
     uint256 duration,
     Fee[] fees
   );
@@ -79,6 +80,7 @@ contract AuctionManager is
    * @param _paymentToken address of bid token
    * @param _minPrice minimum price of bid
    * @param _minWinPercent minimum win percent
+   * @param _startTime start time of auction
    * @param _duration duration of auction
    * @param _fees fee data
    */
@@ -89,6 +91,7 @@ contract AuctionManager is
     address _paymentToken,
     uint256 _minPrice,
     uint256 _minWinPercent,
+    uint256 _startTime,
     uint256 _duration,
     Fee[] memory _fees
   ) external {
@@ -111,6 +114,7 @@ contract AuctionManager is
     auction.tokenId = _tokenId;
     auction.paymentToken = _paymentToken;
     auction.minPrice = _minPrice;
+    auction.startTime = _startTime;
     auction.duration = _duration;
     auction.minWinPercent = _minWinPercent;
     auction.amount = _amount;
@@ -135,6 +139,7 @@ contract AuctionManager is
       _amount,
       _minPrice,
       _duration,
+      _startTime,
       auction.fees
     );
   }
@@ -147,6 +152,7 @@ contract AuctionManager is
    * @param _price new bidding price
    */
   function bid(bytes32 _id, uint256 _price) external payable nonReentrant {
+    require(block.timestamp > auctions[_id].startTime, "Auction: Wait until the start time comes");
     require(
       block.timestamp < auctions[_id].endTime || auctions[_id].endTime == 0,
       "Auction: This auction already finished"

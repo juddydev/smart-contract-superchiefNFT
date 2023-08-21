@@ -74,8 +74,19 @@ describe("AuctionManager test", () => {
       ["address", "address", "uint256", "address", "uint256", "uint256"],
       [deployer.address, nft.address, 1, token.address, parseUnits("1"), 100],
     );
+    const currentTime = await getTime();
     await expect(
-      auctionManager.createAuction(nft.address, 1, 1, token.address, parseUnits("1"), 105, 24 * 60 * 60, []),
+      auctionManager.createAuction(
+        nft.address,
+        1,
+        1,
+        token.address,
+        parseUnits("1"),
+        105,
+        currentTime,
+        24 * 60 * 60,
+        [],
+      ),
     ).to.emit(auctionManager, "NewAuction");
 
     const auctionData = await auctionManager.auctions(auctionId);
@@ -140,8 +151,19 @@ describe("AuctionManager test", () => {
       ["address", "address", "uint256", "address", "uint256", "uint256"],
       [deployer.address, nft.address, 2, token.address, parseUnits("1"), 150],
     );
+    const currentTime = await getTime();
     await expect(
-      auctionManager.createAuction(nft.address, 2, 1, token.address, parseUnits("1"), 105, 24 * 60 * 60, []),
+      auctionManager.createAuction(
+        nft.address,
+        2,
+        1,
+        token.address,
+        parseUnits("1"),
+        105,
+        currentTime,
+        24 * 60 * 60,
+        [],
+      ),
     ).to.emit(auctionManager, "NewAuction");
 
     await expect(auctionManager.connect(alice).cancel(auctionId)).to.be.revertedWith("Auction: not owner");
