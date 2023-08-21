@@ -2,7 +2,7 @@ import { TypedDataUtils, SignTypedDataVersion } from "@metamask/eth-sig-util";
 import { Contract, Signature, ethers } from "ethers";
 import { OrderParameters, OrderWithNonce } from "./structure";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
-import { splitSignature } from "ethers/lib/utils";
+import { arrayify, solidityKeccak256, splitSignature } from "ethers/lib/utils";
 import { MerkleTree } from "merkletreejs";
 import { config } from "hardhat";
 const { eip712Hash, hashStruct } = TypedDataUtils;
@@ -149,27 +149,15 @@ export function packSignature(signature: Signature): string {
 }
 
 export async function oracleSign(
-  order: OrderParameters,
+  orderHash: string,
   account: SignerWithAddress,
-  exchange: Contract,
   blockNumber: number,
 ): Promise<Signature> {
-  const nonce = await exchange.nonces(order.trader);
-  const str = structToSign({ ...order, nonce }, exchange.address);
-  return account
-    ._signTypedData(
-      str.domain,
-      {
-        [eip712Fee.name]: eip712Fee.fields,
-        [eip712Order.name]: eip712Order.fields,
-        [eip712OracleOrder.name]: eip712OracleOrder.fields,
-      },
-      { order: str.data, blockNumber },
-    )
-    .then((sigBytes) => {
-      const sig = ethers.utils.splitSignature(sigBytes);
-      return sig;
-    });
+  const message = solidityKeccak256(["bytes32", "uint256"], [orderHash, blockNumber]);
+  return account.signMessage(arrayify(message)).then((sigBytes) => {
+    const sig = ethers.utils.splitSignature(sigBytes);
+    return sig;
+  });
 }
 
 export function getMerkleProof(leaves: string[]) {

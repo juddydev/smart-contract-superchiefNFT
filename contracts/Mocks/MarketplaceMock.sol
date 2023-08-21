@@ -419,7 +419,10 @@ contract MarketplaceMock is
     bytes calldata extraSignature,
     uint256 blockNumber
   ) internal view returns (bool) {
-    bytes32 oracleHash = _hashToSignOracle(orderHash, blockNumber);
+    bytes32 oracleHash = keccak256(abi.encodePacked(orderHash, blockNumber));
+    bytes32 ethSignedMessageHash = keccak256(
+      abi.encodePacked("\x19Ethereum Signed Message:\n32", oracleHash)
+    );
 
     uint8 v;
     bytes32 r;
@@ -437,7 +440,7 @@ contract MarketplaceMock is
       s = _s;
     }
 
-    return _recover(oracleHash, v, r, s) == oracle;
+    return _recover(ethSignedMessageHash, v, r, s) == oracle;
   }
 
   /**

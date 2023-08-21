@@ -58,6 +58,7 @@ export class Order {
   }
 
   async pack(options: { signer?: SignerWithAddress; oracle?: SignerWithAddress; blockNumber?: number } = {}) {
+    const orderHash = await this.hash();
     const signature = await sign(this.parameters, options.signer || this.user, this.exchange);
     return {
       order: this.parameters,
@@ -66,9 +67,8 @@ export class Order {
       s: signature.s,
       extraSignature: packSignature(
         await oracleSign(
-          this.parameters,
+          orderHash,
           options.oracle || this.admin,
-          this.exchange,
           options.blockNumber || (await ethers.provider.getBlock("latest")).number,
         ),
       ),
@@ -90,15 +90,15 @@ export class Order {
   }
 
   async packBulk(otherOrders: Order[]) {
+    const orderHash = await this.hash();
     const { path, r, v, s } = await signBulk(
       [this.parameters, ...otherOrders.map((_) => _.parameters)],
       this.user,
       this.exchange,
     );
     const oracleSig = await oracleSign(
-      this.parameters,
+      orderHash,
       this.admin,
-      this.exchange,
       (
         await ethers.provider.getBlock("latest")
       ).number,
