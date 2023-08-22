@@ -46,5 +46,5 @@ interface IExecutionDelegate {
     Fee[] memory _fees
   ) external view returns (Fee[] memory fees);
 
-  function validateSign(address sender, Sig calldata sig) external view returns (bool);
+  function checkSuperAdmin(address sender, Sig calldata sig) external returns (bool);
 }

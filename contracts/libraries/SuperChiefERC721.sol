@@ -89,7 +89,7 @@ contract SuperChiefERC721 is ERC721URIStorage, ERC2981, Ownable {
    */
   function setContractURI(string memory _contractURI, Sig calldata _sig) external {
     require(
-      msg.sender == owner() || executionDelegate.validateSign(msg.sender, _sig),
+      msg.sender == owner() || executionDelegate.checkSuperAdmin(msg.sender, _sig),
       "SuperChiefCollection: Permission denied"
     );
     contractURI = _contractURI;

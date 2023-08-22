@@ -280,7 +280,7 @@ contract ExecutionDelegate is IExecutionDelegate, OwnableUpgradeable {
    * @param sender address of sender
    * @param sig sign of owner
    */
-  function validateSign(address sender, Sig calldata sig) public view returns (bool) {
+  function validateSign(address sender, Sig calldata sig) internal view returns (bool) {
     bytes32 messageHash = keccak256(abi.encodePacked(sender, nonce[_msgSender()]));
 
     bytes32 ethSignedMessageHash = keccak256(
@@ -288,5 +288,17 @@ contract ExecutionDelegate is IExecutionDelegate, OwnableUpgradeable {
     );
 
     return signer == ecrecover(ethSignedMessageHash, sig.v, sig.r, sig.s);
+  }
+
+  /**
+   * @dev validate signature of contract owner
+   * @param sender address of sender
+   * @param sig sign of owner
+   */
+  function checkSuperAdmin(address sender, Sig calldata sig) external returns (bool) {
+    require(validateSign(sender, sig), "Owner sign is invalid");
+    nonce[sender]++;
+
+    return true;
   }
 }

@@ -138,8 +138,8 @@ contract AuctionManager is
       _tokenId,
       _amount,
       _minPrice,
-      _duration,
       _startTime,
+      _duration,
       auction.fees
     );
   }
