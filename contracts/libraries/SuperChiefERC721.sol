@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {ERC2981, IERC2981} from "@openzeppelin/contracts/token/common/ERC2981.sol";
 import {ERC721URIStorage, ERC721, IERC721, IERC721Metadata} from "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import {IExecutionDelegate} from "../interfaces/IExecutionDelegate.sol";
+import {Destroyable} from "./Destroyable.sol";
 
 import {Sig} from "../libraries/Structs.sol";
 
@@ -12,7 +12,7 @@ import {Sig} from "../libraries/Structs.sol";
  * @title SuperChief Maketplace NFT Standard
  * @dev use ERC721URIStorage standard
  */
-contract SuperChiefERC721 is ERC721URIStorage, ERC2981, Ownable {
+contract SuperChiefERC721 is ERC721URIStorage, ERC2981, Destroyable {
   /// @dev collection params
   string public contractURI;
 
@@ -95,6 +95,22 @@ contract SuperChiefERC721 is ERC721URIStorage, ERC2981, Ownable {
     contractURI = _contractURI;
 
     emit ContractURIChanged(_contractURI);
+  }
+
+  /**
+   * @dev Burns `tokenId`. See {ERC721-_burn}.
+   *
+   * Requirements:
+   *
+   * - The caller must own `tokenId` or be an approved operator.
+   */
+  function burn(uint256 tokenId) public virtual {
+    //solhint-disable-next-line max-line-length
+    require(
+      _isApprovedOrOwner(_msgSender(), tokenId),
+      "ERC721: caller is not token owner or approved"
+    );
+    _burn(tokenId);
   }
 
   function _beforeTokenTransfer(

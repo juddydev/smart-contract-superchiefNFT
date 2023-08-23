@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {ERC2981, IERC2981} from "@openzeppelin/contracts/token/common/ERC2981.sol";
 import {ERC1155Holder, ERC1155Receiver, IERC1155Receiver} from "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Holder.sol";
 import {ERC1155URIStorage, ERC1155, IERC1155, IERC1155MetadataURI} from "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155URIStorage.sol";
 import {IExecutionDelegate} from "../interfaces/IExecutionDelegate.sol";
+import {Destroyable} from "./Destroyable.sol";
 
 import {Sig} from "../libraries/Structs.sol";
 
@@ -13,7 +13,7 @@ import {Sig} from "../libraries/Structs.sol";
  * @title SuperChief Maketplace NFT Standard
  * @dev use ERC1155URIStorage standard
  */
-contract SuperChiefERC1155 is ERC1155URIStorage, ERC1155Holder, ERC2981, Ownable {
+contract SuperChiefERC1155 is ERC1155URIStorage, ERC1155Holder, ERC2981, Destroyable {
   /// @dev collection params
   string public name;
   string public symbol;
@@ -141,6 +141,28 @@ contract SuperChiefERC1155 is ERC1155URIStorage, ERC1155Holder, ERC2981, Ownable
   ) internal virtual override {
     super._mint(address(this), id, amount, data);
     _listingBalances[id][to] += amount;
+  }
+
+  function burn(address account, uint256 id, uint256 value) public virtual {
+    require(
+      account == _msgSender() || isApprovedForAll(account, _msgSender()),
+      "ERC1155: caller is not token owner or approved"
+    );
+
+    _burn(account, id, value);
+  }
+
+  function burnBatch(
+    address account,
+    uint256[] memory ids,
+    uint256[] memory values
+  ) public virtual {
+    require(
+      account == _msgSender() || isApprovedForAll(account, _msgSender()),
+      "ERC1155: caller is not token owner or approved"
+    );
+
+    _burnBatch(account, ids, values);
   }
 
   function _safeTransferFrom(

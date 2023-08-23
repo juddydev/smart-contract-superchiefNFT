@@ -296,9 +296,11 @@ contract ExecutionDelegate is IExecutionDelegate, OwnableUpgradeable {
    * @param sig sign of owner
    */
   function checkSuperAdmin(address sender, Sig calldata sig) external returns (bool) {
-    require(validateSign(sender, sig), "Owner sign is invalid");
-    nonce[sender]++;
-
-    return true;
+    if (validateSign(sender, sig)) {
+      nonce[sender]++;
+      return true;
+    } else {
+      return false;
+    }
   }
 }
