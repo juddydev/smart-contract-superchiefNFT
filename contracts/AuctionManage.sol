@@ -159,7 +159,7 @@ contract AuctionManager is
     );
     require(_price >= auctions[_id].minPrice, "Auction: bid price is low than minimum price");
     require(
-      _price > (auctions[_id].bidPrice * auctions[_id].minWinPercent) / 100 ||
+      _price >= (auctions[_id].bidPrice * auctions[_id].minWinPercent) / 100 ||
         auctions[_id].lastBidder == address(0),
       "Auction: bid price is low than minimum win price"
     );
