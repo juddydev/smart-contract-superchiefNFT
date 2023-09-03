@@ -6,6 +6,7 @@ import {
   ERC1155Collection__factory,
   ERC1155Exhibition,
   ERC1155Exhibition__factory,
+  ExecutionDelegate__factory,
 } from "../types";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { deployments } from "hardhat";
@@ -36,6 +37,17 @@ const setup = deployments.createFixture(async (hre) => {
   };
 });
 
+const signForUpdate = async (sender: string, nonce: number) => {
+  const hash = solidityKeccak256(["address", "uint256"], [sender, nonce]);
+  const sig = await signer.signMessage(arrayify(hash));
+  const { r, s, v } = splitSignature(sig);
+  return {
+    r,
+    s,
+    v,
+  };
+};
+
 describe("SuperChief Collection test", () => {
   before(async () => {
     const { accounts } = await setup();
@@ -60,7 +72,6 @@ describe("SuperChief Collection test", () => {
       .to.emit(collection, "ContractURIChanged")
       .withArgs("https://fake.uri");
 
-    console.log(await collection.owner(), alice.address);
     // only owner can change contract uri
     await expect(
       collection.connect(alice).setContractURI("https://alice.fake", {
@@ -69,6 +80,23 @@ describe("SuperChief Collection test", () => {
         v: 0,
       }),
     ).to.revertedWith("SuperChiefCollection: Permission denied");
+
+    const proxy = await ship.connect("ExecutionDelegateProxy");
+    const executionDelegate = ExecutionDelegate__factory.connect(proxy.address, deployer);
+
+    expect(await executionDelegate.nonce(alice.address)).to.equal(0);
+    let sign = await signForUpdate(alice.address, 0);
+    await expect(collection.connect(alice).setContractURI("https://alice.fake", sign)).to.be.emit(
+      collection,
+      "ContractURIChanged",
+    );
+
+    expect(await executionDelegate.nonce(alice.address)).to.equal(1);
+    sign = await signForUpdate(alice.address, 1);
+    await expect(collection.connect(alice).setContractURI("https://alice.fake", sign)).to.be.emit(
+      collection,
+      "ContractURIChanged",
+    );
   });
 
   it("mint functionality test", async () => {
@@ -106,6 +134,7 @@ describe("SuperChief Exhibition test", () => {
     const { accounts } = await setup();
 
     deployer = accounts.deployer;
+    signer = accounts.signer;
     alice = accounts.alice;
     bob = accounts.bob;
 

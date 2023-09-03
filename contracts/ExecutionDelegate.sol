@@ -281,7 +281,7 @@ contract ExecutionDelegate is IExecutionDelegate, OwnableUpgradeable {
    * @param sig sign of owner
    */
   function validateSign(address sender, Sig calldata sig) internal view returns (bool) {
-    bytes32 messageHash = keccak256(abi.encodePacked(sender, nonce[_msgSender()]));
+    bytes32 messageHash = keccak256(abi.encodePacked(sender, nonce[sender]));
 
     bytes32 ethSignedMessageHash = keccak256(
       abi.encodePacked("\x19Ethereum Signed Message:\n32", messageHash)
