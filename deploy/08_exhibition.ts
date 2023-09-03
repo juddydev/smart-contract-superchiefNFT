@@ -13,4 +13,4 @@ const func: DeployFunction = async (hre) => {
 
 export default func;
 func.tags = ["exhibition"];
-func.dependencies = ["execution-delegate"];
+// func.dependencies = ["execution-delegate"];
