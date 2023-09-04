@@ -81,10 +81,10 @@ const config: HardhatUserConfig = {
   },
   namedAccounts: {
     deployer: 0,
-    alice: 1,
-    bob: 2,
-    signer: 3,
-    vault: 4,
+    alice: 3,
+    bob: 4,
+    signer: 1,
+    vault: 2,
   },
   abiExporter: {
     path: "./abis",

@@ -1,7 +1,6 @@
 import { DeployFunction } from "hardhat-deploy/types";
 import {
   TransparentUpgradeableProxy__factory,
-  ExecutionDelegate__factory,
   IExecutionDelegate__factory,
   MarketplaceMock__factory,
   Marketplace__factory,
@@ -71,14 +70,23 @@ const func: DeployFunction = async (hre) => {
       wethAddress,
       executionDelegateProxy.address,
       policyManager.address,
-      "0x608f3177A67Aa5A13b4B04f1230C0597356E9887",
+      accounts.signer.address,
       5,
     );
   }
-  await deploy(TransparentUpgradeableProxy__factory, {
+  const proxy = await deploy(TransparentUpgradeableProxy__factory, {
     aliasName: "MarketplaceProxy",
     args: [implement.address, accounts.vault.address, initializeTransaction.data as string],
   });
+  if (proxy.newlyDeployed) {
+    const executionDelegate = IExecutionDelegate__factory.connect(
+      executionDelegateProxy.address,
+      accounts.deployer,
+    );
+    const tx = await executionDelegate.approveContract(proxy.address);
+    console.log("Approving proxy contract at");
+    await tx.wait();
+  }
 };
 
 export default func;

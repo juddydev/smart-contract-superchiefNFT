@@ -9,9 +9,7 @@ const func: DeployFunction = async (hre) => {
 
   const implement = await deploy(ExecutionDelegate__factory);
 
-  const initTx = await implement.contract.populateTransaction.initialize(
-    hre.network.tags.local ? accounts.signer.address : "0x608f3177A67Aa5A13b4B04f1230C0597356E9887",
-  );
+  const initTx = await implement.contract.populateTransaction.initialize(accounts.signer.address);
 
   await deploy(TransparentUpgradeableProxy__factory, {
     aliasName: "ExecutionDelegateProxy",

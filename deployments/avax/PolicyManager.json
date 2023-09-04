@@ -1,0 +1,354 @@
+{
+  "address": "0xFFE0979EC749a53FB7a5Be4b709C453F4Fde06DA",
+  "abi": [
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "previousOwner",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "OwnershipTransferred",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "policy",
+          "type": "address"
+        }
+      ],
+      "name": "PolicyRemoved",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "policy",
+          "type": "address"
+        }
+      ],
+      "name": "PolicyWhitelisted",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "policy",
+          "type": "address"
+        }
+      ],
+      "name": "addPolicy",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "policy",
+          "type": "address"
+        }
+      ],
+      "name": "isPolicyWhitelisted",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "owner",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "policy",
+          "type": "address"
+        }
+      ],
+      "name": "removePolicy",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "renounceOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "transferOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "viewCountWhitelistedPolicies",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "cursor",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "size",
+          "type": "uint256"
+        }
+      ],
+      "name": "viewWhitelistedPolicies",
+      "outputs": [
+        {
+          "internalType": "address[]",
+          "name": "",
+          "type": "address[]"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0x893065e65576195ee1c42c00d3ab8b82d7120c4f531dcd96fa6433311d44137b",
+  "receipt": {
+    "to": null,
+    "from": "0x2A7c489047DEF7CB99b14B2295766fF964B6c8E3",
+    "contractAddress": "0xFFE0979EC749a53FB7a5Be4b709C453F4Fde06DA",
+    "transactionIndex": 5,
+    "gasUsed": "516612",
+    "logsBloom": "0x00000000000000000000000000000000000000000000000000800000000000000000000000000000000000008000000000000000000000000000000000000000000000000020000000000080000000000001000000000000000000000000000000000000020000000000000000000800000000000000000000000000000000400000000000000000000080000000000000000000100000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000000",
+    "blockHash": "0x6a0e91256e2db53aec9e140cdaaa7282825014266ea72ceec9f6e3910d30d269",
+    "transactionHash": "0x893065e65576195ee1c42c00d3ab8b82d7120c4f531dcd96fa6433311d44137b",
+    "logs": [
+      {
+        "transactionIndex": 5,
+        "blockNumber": 34749046,
+        "transactionHash": "0x893065e65576195ee1c42c00d3ab8b82d7120c4f531dcd96fa6433311d44137b",
+        "address": "0xFFE0979EC749a53FB7a5Be4b709C453F4Fde06DA",
+        "topics": [
+          "0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0",
+          "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "0x0000000000000000000000002a7c489047def7cb99b14b2295766ff964b6c8e3"
+        ],
+        "data": "0x",
+        "logIndex": 30,
+        "blockHash": "0x6a0e91256e2db53aec9e140cdaaa7282825014266ea72ceec9f6e3910d30d269"
+      }
+    ],
+    "blockNumber": 34749046,
+    "cumulativeGasUsed": "1618070",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [],
+  "numDeployments": 1,
+  "solcInputHash": "cccdf0b470ac700871b8ba2c9b973ab7",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.19+commit.7dd6d404\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"previousOwner\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"OwnershipTransferred\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"policy\",\"type\":\"address\"}],\"name\":\"PolicyRemoved\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"policy\",\"type\":\"address\"}],\"name\":\"PolicyWhitelisted\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"policy\",\"type\":\"address\"}],\"name\":\"addPolicy\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"policy\",\"type\":\"address\"}],\"name\":\"isPolicyWhitelisted\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"policy\",\"type\":\"address\"}],\"name\":\"removePolicy\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"renounceOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"transferOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"viewCountWhitelistedPolicies\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"cursor\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"size\",\"type\":\"uint256\"}],\"name\":\"viewWhitelistedPolicies\",\"outputs\":[{\"internalType\":\"address[]\",\"name\":\"\",\"type\":\"address[]\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"details\":\"Manages the policy whitelist for the marketplace\",\"kind\":\"dev\",\"methods\":{\"addPolicy(address)\":{\"params\":{\"policy\":\"address of policy to add\"}},\"isPolicyWhitelisted(address)\":{\"params\":{\"policy\":\"address of the policy to check\"}},\"owner()\":{\"details\":\"Returns the address of the current owner.\"},\"removePolicy(address)\":{\"params\":{\"policy\":\"address of policy to remove\"}},\"renounceOwnership()\":{\"details\":\"Leaves the contract without owner. It will not be possible to call `onlyOwner` functions. Can only be called by the current owner. NOTE: Renouncing ownership will leave the contract without an owner, thereby disabling any functionality that is only available to the owner.\"},\"transferOwnership(address)\":{\"details\":\"Transfers ownership of the contract to a new account (`newOwner`). Can only be called by the current owner.\"},\"viewWhitelistedPolicies(uint256,uint256)\":{\"params\":{\"cursor\":\"cursor\",\"size\":\"size\"}}},\"title\":\"PolicyManager\",\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{\"addPolicy(address)\":{\"notice\":\"Add matching policy\"},\"isPolicyWhitelisted(address)\":{\"notice\":\"Returns if a policy has been added\"},\"removePolicy(address)\":{\"notice\":\"Remove matching policy\"},\"viewCountWhitelistedPolicies()\":{\"notice\":\"View number of whitelisted policies\"},\"viewWhitelistedPolicies(uint256,uint256)\":{\"notice\":\"See whitelisted policies\"}},\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/PolicyManager.sol\":\"PolicyManager\"},\"evmVersion\":\"paris\",\"libraries\":{\":__CACHE_BREAKER__\":\"0x00000000d41867734bbee4c6863d9255b2b06ac1\"},\"metadata\":{\"bytecodeHash\":\"none\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":20},\"remappings\":[]},\"sources\":{\"@openzeppelin/contracts/access/Ownable.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// OpenZeppelin Contracts (last updated v4.9.0) (access/Ownable.sol)\\n\\npragma solidity ^0.8.0;\\n\\nimport \\\"../utils/Context.sol\\\";\\n\\n/**\\n * @dev Contract module which provides a basic access control mechanism, where\\n * there is an account (an owner) that can be granted exclusive access to\\n * specific functions.\\n *\\n * By default, the owner account will be the one that deploys the contract. This\\n * can later be changed with {transferOwnership}.\\n *\\n * This module is used through inheritance. It will make available the modifier\\n * `onlyOwner`, which can be applied to your functions to restrict their use to\\n * the owner.\\n */\\nabstract contract Ownable is Context {\\n    address private _owner;\\n\\n    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);\\n\\n    /**\\n     * @dev Initializes the contract setting the deployer as the initial owner.\\n     */\\n    constructor() {\\n        _transferOwnership(_msgSender());\\n    }\\n\\n    /**\\n     * @dev Throws if called by any account other than the owner.\\n     */\\n    modifier onlyOwner() {\\n        _checkOwner();\\n        _;\\n    }\\n\\n    /**\\n     * @dev Returns the address of the current owner.\\n     */\\n    function owner() public view virtual returns (address) {\\n        return _owner;\\n    }\\n\\n    /**\\n     * @dev Throws if the sender is not the owner.\\n     */\\n    function _checkOwner() internal view virtual {\\n        require(owner() == _msgSender(), \\\"Ownable: caller is not the owner\\\");\\n    }\\n\\n    /**\\n     * @dev Leaves the contract without owner. It will not be possible to call\\n     * `onlyOwner` functions. Can only be called by the current owner.\\n     *\\n     * NOTE: Renouncing ownership will leave the contract without an owner,\\n     * thereby disabling any functionality that is only available to the owner.\\n     */\\n    function renounceOwnership() public virtual onlyOwner {\\n        _transferOwnership(address(0));\\n    }\\n\\n    /**\\n     * @dev Transfers ownership of the contract to a new account (`newOwner`).\\n     * Can only be called by the current owner.\\n     */\\n    function transferOwnership(address newOwner) public virtual onlyOwner {\\n        require(newOwner != address(0), \\\"Ownable: new owner is the zero address\\\");\\n        _transferOwnership(newOwner);\\n    }\\n\\n    /**\\n     * @dev Transfers ownership of the contract to a new account (`newOwner`).\\n     * Internal function without access restriction.\\n     */\\n    function _transferOwnership(address newOwner) internal virtual {\\n        address oldOwner = _owner;\\n        _owner = newOwner;\\n        emit OwnershipTransferred(oldOwner, newOwner);\\n    }\\n}\\n\",\"keccak256\":\"0xba43b97fba0d32eb4254f6a5a297b39a19a247082a02d6e69349e071e2946218\",\"license\":\"MIT\"},\"@openzeppelin/contracts/utils/Context.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// OpenZeppelin Contracts v4.4.1 (utils/Context.sol)\\n\\npragma solidity ^0.8.0;\\n\\n/**\\n * @dev Provides information about the current execution context, including the\\n * sender of the transaction and its data. While these are generally available\\n * via msg.sender and msg.data, they should not be accessed in such a direct\\n * manner, since when dealing with meta-transactions the account sending and\\n * paying for execution may not be the actual sender (as far as an application\\n * is concerned).\\n *\\n * This contract is only required for intermediate, library-like contracts.\\n */\\nabstract contract Context {\\n    function _msgSender() internal view virtual returns (address) {\\n        return msg.sender;\\n    }\\n\\n    function _msgData() internal view virtual returns (bytes calldata) {\\n        return msg.data;\\n    }\\n}\\n\",\"keccak256\":\"0xe2e337e6dde9ef6b680e07338c493ebea1b5fd09b43424112868e9cc1706bca7\",\"license\":\"MIT\"},\"@openzeppelin/contracts/utils/structs/EnumerableSet.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// OpenZeppelin Contracts (last updated v4.9.0) (utils/structs/EnumerableSet.sol)\\n// This file was procedurally generated from scripts/generate/templates/EnumerableSet.js.\\n\\npragma solidity ^0.8.0;\\n\\n/**\\n * @dev Library for managing\\n * https://en.wikipedia.org/wiki/Set_(abstract_data_type)[sets] of primitive\\n * types.\\n *\\n * Sets have the following properties:\\n *\\n * - Elements are added, removed, and checked for existence in constant time\\n * (O(1)).\\n * - Elements are enumerated in O(n). No guarantees are made on the ordering.\\n *\\n * ```solidity\\n * contract Example {\\n *     // Add the library methods\\n *     using EnumerableSet for EnumerableSet.AddressSet;\\n *\\n *     // Declare a set state variable\\n *     EnumerableSet.AddressSet private mySet;\\n * }\\n * ```\\n *\\n * As of v3.3.0, sets of type `bytes32` (`Bytes32Set`), `address` (`AddressSet`)\\n * and `uint256` (`UintSet`) are supported.\\n *\\n * [WARNING]\\n * ====\\n * Trying to delete such a structure from storage will likely result in data corruption, rendering the structure\\n * unusable.\\n * See https://github.com/ethereum/solidity/pull/11843[ethereum/solidity#11843] for more info.\\n *\\n * In order to clean an EnumerableSet, you can either remove all elements one by one or create a fresh instance using an\\n * array of EnumerableSet.\\n * ====\\n */\\nlibrary EnumerableSet {\\n    // To implement this library for multiple types with as little code\\n    // repetition as possible, we write it in terms of a generic Set type with\\n    // bytes32 values.\\n    // The Set implementation uses private functions, and user-facing\\n    // implementations (such as AddressSet) are just wrappers around the\\n    // underlying Set.\\n    // This means that we can only create new EnumerableSets for types that fit\\n    // in bytes32.\\n\\n    struct Set {\\n        // Storage of set values\\n        bytes32[] _values;\\n        // Position of the value in the `values` array, plus 1 because index 0\\n        // means a value is not in the set.\\n        mapping(bytes32 => uint256) _indexes;\\n    }\\n\\n    /**\\n     * @dev Add a value to a set. O(1).\\n     *\\n     * Returns true if the value was added to the set, that is if it was not\\n     * already present.\\n     */\\n    function _add(Set storage set, bytes32 value) private returns (bool) {\\n        if (!_contains(set, value)) {\\n            set._values.push(value);\\n            // The value is stored at length-1, but we add 1 to all indexes\\n            // and use 0 as a sentinel value\\n            set._indexes[value] = set._values.length;\\n            return true;\\n        } else {\\n            return false;\\n        }\\n    }\\n\\n    /**\\n     * @dev Removes a value from a set. O(1).\\n     *\\n     * Returns true if the value was removed from the set, that is if it was\\n     * present.\\n     */\\n    function _remove(Set storage set, bytes32 value) private returns (bool) {\\n        // We read and store the value's index to prevent multiple reads from the same storage slot\\n        uint256 valueIndex = set._indexes[value];\\n\\n        if (valueIndex != 0) {\\n            // Equivalent to contains(set, value)\\n            // To delete an element from the _values array in O(1), we swap the element to delete with the last one in\\n            // the array, and then remove the last element (sometimes called as 'swap and pop').\\n            // This modifies the order of the array, as noted in {at}.\\n\\n            uint256 toDeleteIndex = valueIndex - 1;\\n            uint256 lastIndex = set._values.length - 1;\\n\\n            if (lastIndex != toDeleteIndex) {\\n                bytes32 lastValue = set._values[lastIndex];\\n\\n                // Move the last value to the index where the value to delete is\\n                set._values[toDeleteIndex] = lastValue;\\n                // Update the index for the moved value\\n                set._indexes[lastValue] = valueIndex; // Replace lastValue's index to valueIndex\\n            }\\n\\n            // Delete the slot where the moved value was stored\\n            set._values.pop();\\n\\n            // Delete the index for the deleted slot\\n            delete set._indexes[value];\\n\\n            return true;\\n        } else {\\n            return false;\\n        }\\n    }\\n\\n    /**\\n     * @dev Returns true if the value is in the set. O(1).\\n     */\\n    function _contains(Set storage set, bytes32 value) private view returns (bool) {\\n        return set._indexes[value] != 0;\\n    }\\n\\n    /**\\n     * @dev Returns the number of values on the set. O(1).\\n     */\\n    function _length(Set storage set) private view returns (uint256) {\\n        return set._values.length;\\n    }\\n\\n    /**\\n     * @dev Returns the value stored at position `index` in the set. O(1).\\n     *\\n     * Note that there are no guarantees on the ordering of values inside the\\n     * array, and it may change when more values are added or removed.\\n     *\\n     * Requirements:\\n     *\\n     * - `index` must be strictly less than {length}.\\n     */\\n    function _at(Set storage set, uint256 index) private view returns (bytes32) {\\n        return set._values[index];\\n    }\\n\\n    /**\\n     * @dev Return the entire set in an array\\n     *\\n     * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed\\n     * to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that\\n     * this function has an unbounded cost, and using it as part of a state-changing function may render the function\\n     * uncallable if the set grows to a point where copying to memory consumes too much gas to fit in a block.\\n     */\\n    function _values(Set storage set) private view returns (bytes32[] memory) {\\n        return set._values;\\n    }\\n\\n    // Bytes32Set\\n\\n    struct Bytes32Set {\\n        Set _inner;\\n    }\\n\\n    /**\\n     * @dev Add a value to a set. O(1).\\n     *\\n     * Returns true if the value was added to the set, that is if it was not\\n     * already present.\\n     */\\n    function add(Bytes32Set storage set, bytes32 value) internal returns (bool) {\\n        return _add(set._inner, value);\\n    }\\n\\n    /**\\n     * @dev Removes a value from a set. O(1).\\n     *\\n     * Returns true if the value was removed from the set, that is if it was\\n     * present.\\n     */\\n    function remove(Bytes32Set storage set, bytes32 value) internal returns (bool) {\\n        return _remove(set._inner, value);\\n    }\\n\\n    /**\\n     * @dev Returns true if the value is in the set. O(1).\\n     */\\n    function contains(Bytes32Set storage set, bytes32 value) internal view returns (bool) {\\n        return _contains(set._inner, value);\\n    }\\n\\n    /**\\n     * @dev Returns the number of values in the set. O(1).\\n     */\\n    function length(Bytes32Set storage set) internal view returns (uint256) {\\n        return _length(set._inner);\\n    }\\n\\n    /**\\n     * @dev Returns the value stored at position `index` in the set. O(1).\\n     *\\n     * Note that there are no guarantees on the ordering of values inside the\\n     * array, and it may change when more values are added or removed.\\n     *\\n     * Requirements:\\n     *\\n     * - `index` must be strictly less than {length}.\\n     */\\n    function at(Bytes32Set storage set, uint256 index) internal view returns (bytes32) {\\n        return _at(set._inner, index);\\n    }\\n\\n    /**\\n     * @dev Return the entire set in an array\\n     *\\n     * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed\\n     * to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that\\n     * this function has an unbounded cost, and using it as part of a state-changing function may render the function\\n     * uncallable if the set grows to a point where copying to memory consumes too much gas to fit in a block.\\n     */\\n    function values(Bytes32Set storage set) internal view returns (bytes32[] memory) {\\n        bytes32[] memory store = _values(set._inner);\\n        bytes32[] memory result;\\n\\n        /// @solidity memory-safe-assembly\\n        assembly {\\n            result := store\\n        }\\n\\n        return result;\\n    }\\n\\n    // AddressSet\\n\\n    struct AddressSet {\\n        Set _inner;\\n    }\\n\\n    /**\\n     * @dev Add a value to a set. O(1).\\n     *\\n     * Returns true if the value was added to the set, that is if it was not\\n     * already present.\\n     */\\n    function add(AddressSet storage set, address value) internal returns (bool) {\\n        return _add(set._inner, bytes32(uint256(uint160(value))));\\n    }\\n\\n    /**\\n     * @dev Removes a value from a set. O(1).\\n     *\\n     * Returns true if the value was removed from the set, that is if it was\\n     * present.\\n     */\\n    function remove(AddressSet storage set, address value) internal returns (bool) {\\n        return _remove(set._inner, bytes32(uint256(uint160(value))));\\n    }\\n\\n    /**\\n     * @dev Returns true if the value is in the set. O(1).\\n     */\\n    function contains(AddressSet storage set, address value) internal view returns (bool) {\\n        return _contains(set._inner, bytes32(uint256(uint160(value))));\\n    }\\n\\n    /**\\n     * @dev Returns the number of values in the set. O(1).\\n     */\\n    function length(AddressSet storage set) internal view returns (uint256) {\\n        return _length(set._inner);\\n    }\\n\\n    /**\\n     * @dev Returns the value stored at position `index` in the set. O(1).\\n     *\\n     * Note that there are no guarantees on the ordering of values inside the\\n     * array, and it may change when more values are added or removed.\\n     *\\n     * Requirements:\\n     *\\n     * - `index` must be strictly less than {length}.\\n     */\\n    function at(AddressSet storage set, uint256 index) internal view returns (address) {\\n        return address(uint160(uint256(_at(set._inner, index))));\\n    }\\n\\n    /**\\n     * @dev Return the entire set in an array\\n     *\\n     * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed\\n     * to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that\\n     * this function has an unbounded cost, and using it as part of a state-changing function may render the function\\n     * uncallable if the set grows to a point where copying to memory consumes too much gas to fit in a block.\\n     */\\n    function values(AddressSet storage set) internal view returns (address[] memory) {\\n        bytes32[] memory store = _values(set._inner);\\n        address[] memory result;\\n\\n        /// @solidity memory-safe-assembly\\n        assembly {\\n            result := store\\n        }\\n\\n        return result;\\n    }\\n\\n    // UintSet\\n\\n    struct UintSet {\\n        Set _inner;\\n    }\\n\\n    /**\\n     * @dev Add a value to a set. O(1).\\n     *\\n     * Returns true if the value was added to the set, that is if it was not\\n     * already present.\\n     */\\n    function add(UintSet storage set, uint256 value) internal returns (bool) {\\n        return _add(set._inner, bytes32(value));\\n    }\\n\\n    /**\\n     * @dev Removes a value from a set. O(1).\\n     *\\n     * Returns true if the value was removed from the set, that is if it was\\n     * present.\\n     */\\n    function remove(UintSet storage set, uint256 value) internal returns (bool) {\\n        return _remove(set._inner, bytes32(value));\\n    }\\n\\n    /**\\n     * @dev Returns true if the value is in the set. O(1).\\n     */\\n    function contains(UintSet storage set, uint256 value) internal view returns (bool) {\\n        return _contains(set._inner, bytes32(value));\\n    }\\n\\n    /**\\n     * @dev Returns the number of values in the set. O(1).\\n     */\\n    function length(UintSet storage set) internal view returns (uint256) {\\n        return _length(set._inner);\\n    }\\n\\n    /**\\n     * @dev Returns the value stored at position `index` in the set. O(1).\\n     *\\n     * Note that there are no guarantees on the ordering of values inside the\\n     * array, and it may change when more values are added or removed.\\n     *\\n     * Requirements:\\n     *\\n     * - `index` must be strictly less than {length}.\\n     */\\n    function at(UintSet storage set, uint256 index) internal view returns (uint256) {\\n        return uint256(_at(set._inner, index));\\n    }\\n\\n    /**\\n     * @dev Return the entire set in an array\\n     *\\n     * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed\\n     * to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that\\n     * this function has an unbounded cost, and using it as part of a state-changing function may render the function\\n     * uncallable if the set grows to a point where copying to memory consumes too much gas to fit in a block.\\n     */\\n    function values(UintSet storage set) internal view returns (uint256[] memory) {\\n        bytes32[] memory store = _values(set._inner);\\n        uint256[] memory result;\\n\\n        /// @solidity memory-safe-assembly\\n        assembly {\\n            result := store\\n        }\\n\\n        return result;\\n    }\\n}\\n\",\"keccak256\":\"0x9f4357008a8f7d8c8bf5d48902e789637538d8c016be5766610901b4bba81514\",\"license\":\"MIT\"},\"contracts/PolicyManager.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity ^0.8.9;\\n\\nimport {Ownable} from \\\"@openzeppelin/contracts/access/Ownable.sol\\\";\\nimport {EnumerableSet} from \\\"@openzeppelin/contracts/utils/structs/EnumerableSet.sol\\\";\\n\\nimport {IPolicyManager} from \\\"./interfaces/IPolicyManager.sol\\\";\\n\\n/**\\n * @title PolicyManager\\n * @dev Manages the policy whitelist for the marketplace\\n */\\ncontract PolicyManager is IPolicyManager, Ownable {\\n  using EnumerableSet for EnumerableSet.AddressSet;\\n\\n  EnumerableSet.AddressSet private _whitelistedPolicies;\\n\\n  event PolicyRemoved(address indexed policy);\\n  event PolicyWhitelisted(address indexed policy);\\n\\n  /**\\n   * @notice Add matching policy\\n   * @param policy address of policy to add\\n   */\\n  function addPolicy(address policy) external override onlyOwner {\\n    require(!_whitelistedPolicies.contains(policy), \\\"Already whitelisted\\\");\\n    _whitelistedPolicies.add(policy);\\n\\n    emit PolicyWhitelisted(policy);\\n  }\\n\\n  /**\\n   * @notice Remove matching policy\\n   * @param policy address of policy to remove\\n   */\\n  function removePolicy(address policy) external override onlyOwner {\\n    require(_whitelistedPolicies.contains(policy), \\\"Not whitelisted\\\");\\n    _whitelistedPolicies.remove(policy);\\n\\n    emit PolicyRemoved(policy);\\n  }\\n\\n  /**\\n   * @notice Returns if a policy has been added\\n   * @param policy address of the policy to check\\n   */\\n  function isPolicyWhitelisted(address policy) external view override returns (bool) {\\n    return _whitelistedPolicies.contains(policy);\\n  }\\n\\n  /**\\n   * @notice View number of whitelisted policies\\n   */\\n  function viewCountWhitelistedPolicies() external view override returns (uint256) {\\n    return _whitelistedPolicies.length();\\n  }\\n\\n  /**\\n   * @notice See whitelisted policies\\n   * @param cursor cursor\\n   * @param size size\\n   */\\n  function viewWhitelistedPolicies(\\n    uint256 cursor,\\n    uint256 size\\n  ) external view override returns (address[] memory, uint256) {\\n    uint256 length = size;\\n\\n    if (length > _whitelistedPolicies.length() - cursor) {\\n      length = _whitelistedPolicies.length() - cursor;\\n    }\\n\\n    address[] memory whitelistedPolicies = new address[](length);\\n\\n    for (uint256 i = 0; i < length; i++) {\\n      whitelistedPolicies[i] = _whitelistedPolicies.at(cursor + i);\\n    }\\n\\n    return (whitelistedPolicies, cursor + length);\\n  }\\n}\\n\",\"keccak256\":\"0xa8c3545c10780e3459d52959d5757c06a3304e7100e3610767c80b015d1a6104\",\"license\":\"MIT\"},\"contracts/interfaces/IPolicyManager.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity ^0.8.9;\\n\\ninterface IPolicyManager {\\n  function addPolicy(address policy) external;\\n\\n  function removePolicy(address policy) external;\\n\\n  function isPolicyWhitelisted(address policy) external view returns (bool);\\n\\n  function viewWhitelistedPolicies(\\n    uint256 cursor,\\n    uint256 size\\n  ) external view returns (address[] memory, uint256);\\n\\n  function viewCountWhitelistedPolicies() external view returns (uint256);\\n}\\n\",\"keccak256\":\"0x2b6ad4c4b18d93f5c6fe6aae1d0f25ce5a6ca9813b89336d583536cda992b9e7\",\"license\":\"MIT\"}},\"version\":1}",
+  "bytecode": "0x608060405234801561001057600080fd5b5061001a3361001f565b61006f565b600080546001600160a01b038381166001600160a01b0319831681178455604051919092169283917f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e09190a35050565b6107ee8061007e6000396000f3fe608060405234801561001057600080fd5b50600436106100785760003560e01c8063715018a61461007d578063747f54ae1461008757806378d38d82146100b1578063874516cd146100c45780638da5cb5b146100e7578063b84ef08114610107578063d6f0d88e1461011a578063f2fde38b14610130575b600080fd5b610085610143565b005b61009a6100953660046106ae565b610157565b6040516100a89291906106d0565b60405180910390f35b6100856100bf366004610721565b61024c565b6100d76100d2366004610721565b6102e5565b60405190151581526020016100a8565b6100ef6102f8565b6040516001600160a01b0390911681526020016100a8565b610085610115366004610721565b610307565b6101226103a0565b6040519081526020016100a8565b61008561013e366004610721565b6103b1565b61014b61042a565b6101556000610489565b565b60606000828461016760016104d9565b6101719190610760565b811115610190578461018360016104d9565b61018d9190610760565b90505b60008167ffffffffffffffff8111156101ab576101ab610773565b6040519080825280602002602001820160405280156101d4578160200160208202803683370190505b50905060005b82811015610233576101f76101ef8289610789565b6001906104e3565b8282815181106102095761020961079c565b6001600160a01b03909216602092830291909101909101528061022b816107b2565b9150506101da565b508061023f8388610789565b9350935050509250929050565b61025461042a565b61025f6001826104f6565b6102a25760405162461bcd60e51b815260206004820152600f60248201526e139bdd081dda1a5d195b1a5cdd1959608a1b60448201526064015b60405180910390fd5b6102ad600182610518565b506040516001600160a01b038216907f7d69543e56287cc6159e1cd00d200f2d86996b94ef9a170c4ec9a31daa6dd2ce90600090a250565b60006102f26001836104f6565b92915050565b6000546001600160a01b031690565b61030f61042a565b61031a6001826104f6565b1561035d5760405162461bcd60e51b8152602060048201526013602482015272105b1c9958591e481dda1a5d195b1a5cdd1959606a1b6044820152606401610299565b61036860018261052d565b506040516001600160a01b038216907f5b5592d50e950152eab424f0fde17ba8b36801c96694a656ca54c6ffd149980890600090a250565b60006103ac60016104d9565b905090565b6103b961042a565b6001600160a01b03811661041e5760405162461bcd60e51b815260206004820152602660248201527f4f776e61626c653a206e6577206f776e657220697320746865207a65726f206160448201526564647265737360d01b6064820152608401610299565b61042781610489565b50565b336104336102f8565b6001600160a01b0316146101555760405162461bcd60e51b815260206004820181905260248201527f4f776e61626c653a2063616c6c6572206973206e6f7420746865206f776e65726044820152606401610299565b600080546001600160a01b038381166001600160a01b0319831681178455604051919092169283917f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e09190a35050565b60006102f2825490565b60006104ef8383610542565b9392505050565b6001600160a01b038116600090815260018301602052604081205415156104ef565b60006104ef836001600160a01b03841661056c565b60006104ef836001600160a01b03841661065f565b60008260000182815481106105595761055961079c565b9060005260206000200154905092915050565b60008181526001830160205260408120548015610655576000610590600183610760565b85549091506000906105a490600190610760565b90508181146106095760008660000182815481106105c4576105c461079c565b90600052602060002001549050808760000184815481106105e7576105e761079c565b6000918252602080832090910192909255918252600188019052604090208390555b855486908061061a5761061a6107cb565b6001900381819060005260206000200160009055905585600101600086815260200190815260200160002060009055600193505050506102f2565b60009150506102f2565b60008181526001830160205260408120546106a6575081546001818101845560008481526020808220909301849055845484825282860190935260409020919091556102f2565b5060006102f2565b600080604083850312156106c157600080fd5b50508035926020909101359150565b604080825283519082018190526000906020906060840190828701845b828110156107125781516001600160a01b0316845292840192908401906001016106ed565b50505092019290925292915050565b60006020828403121561073357600080fd5b81356001600160a01b03811681146104ef57600080fd5b634e487b7160e01b600052601160045260246000fd5b818103818111156102f2576102f261074a565b634e487b7160e01b600052604160045260246000fd5b808201808211156102f2576102f261074a565b634e487b7160e01b600052603260045260246000fd5b6000600182016107c4576107c461074a565b5060010190565b634e487b7160e01b600052603160045260246000fdfea164736f6c6343000813000a",
+  "deployedBytecode": "0x608060405234801561001057600080fd5b50600436106100785760003560e01c8063715018a61461007d578063747f54ae1461008757806378d38d82146100b1578063874516cd146100c45780638da5cb5b146100e7578063b84ef08114610107578063d6f0d88e1461011a578063f2fde38b14610130575b600080fd5b610085610143565b005b61009a6100953660046106ae565b610157565b6040516100a89291906106d0565b60405180910390f35b6100856100bf366004610721565b61024c565b6100d76100d2366004610721565b6102e5565b60405190151581526020016100a8565b6100ef6102f8565b6040516001600160a01b0390911681526020016100a8565b610085610115366004610721565b610307565b6101226103a0565b6040519081526020016100a8565b61008561013e366004610721565b6103b1565b61014b61042a565b6101556000610489565b565b60606000828461016760016104d9565b6101719190610760565b811115610190578461018360016104d9565b61018d9190610760565b90505b60008167ffffffffffffffff8111156101ab576101ab610773565b6040519080825280602002602001820160405280156101d4578160200160208202803683370190505b50905060005b82811015610233576101f76101ef8289610789565b6001906104e3565b8282815181106102095761020961079c565b6001600160a01b03909216602092830291909101909101528061022b816107b2565b9150506101da565b508061023f8388610789565b9350935050509250929050565b61025461042a565b61025f6001826104f6565b6102a25760405162461bcd60e51b815260206004820152600f60248201526e139bdd081dda1a5d195b1a5cdd1959608a1b60448201526064015b60405180910390fd5b6102ad600182610518565b506040516001600160a01b038216907f7d69543e56287cc6159e1cd00d200f2d86996b94ef9a170c4ec9a31daa6dd2ce90600090a250565b60006102f26001836104f6565b92915050565b6000546001600160a01b031690565b61030f61042a565b61031a6001826104f6565b1561035d5760405162461bcd60e51b8152602060048201526013602482015272105b1c9958591e481dda1a5d195b1a5cdd1959606a1b6044820152606401610299565b61036860018261052d565b506040516001600160a01b038216907f5b5592d50e950152eab424f0fde17ba8b36801c96694a656ca54c6ffd149980890600090a250565b60006103ac60016104d9565b905090565b6103b961042a565b6001600160a01b03811661041e5760405162461bcd60e51b815260206004820152602660248201527f4f776e61626c653a206e6577206f776e657220697320746865207a65726f206160448201526564647265737360d01b6064820152608401610299565b61042781610489565b50565b336104336102f8565b6001600160a01b0316146101555760405162461bcd60e51b815260206004820181905260248201527f4f776e61626c653a2063616c6c6572206973206e6f7420746865206f776e65726044820152606401610299565b600080546001600160a01b038381166001600160a01b0319831681178455604051919092169283917f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e09190a35050565b60006102f2825490565b60006104ef8383610542565b9392505050565b6001600160a01b038116600090815260018301602052604081205415156104ef565b60006104ef836001600160a01b03841661056c565b60006104ef836001600160a01b03841661065f565b60008260000182815481106105595761055961079c565b9060005260206000200154905092915050565b60008181526001830160205260408120548015610655576000610590600183610760565b85549091506000906105a490600190610760565b90508181146106095760008660000182815481106105c4576105c461079c565b90600052602060002001549050808760000184815481106105e7576105e761079c565b6000918252602080832090910192909255918252600188019052604090208390555b855486908061061a5761061a6107cb565b6001900381819060005260206000200160009055905585600101600086815260200190815260200160002060009055600193505050506102f2565b60009150506102f2565b60008181526001830160205260408120546106a6575081546001818101845560008481526020808220909301849055845484825282860190935260409020919091556102f2565b5060006102f2565b600080604083850312156106c157600080fd5b50508035926020909101359150565b604080825283519082018190526000906020906060840190828701845b828110156107125781516001600160a01b0316845292840192908401906001016106ed565b50505092019290925292915050565b60006020828403121561073357600080fd5b81356001600160a01b03811681146104ef57600080fd5b634e487b7160e01b600052601160045260246000fd5b818103818111156102f2576102f261074a565b634e487b7160e01b600052604160045260246000fd5b808201808211156102f2576102f261074a565b634e487b7160e01b600052603260045260246000fd5b6000600182016107c4576107c461074a565b5060010190565b634e487b7160e01b600052603160045260246000fdfea164736f6c6343000813000a",
+  "devdoc": {
+    "details": "Manages the policy whitelist for the marketplace",
+    "kind": "dev",
+    "methods": {
+      "addPolicy(address)": {
+        "params": {
+          "policy": "address of policy to add"
+        }
+      },
+      "isPolicyWhitelisted(address)": {
+        "params": {
+          "policy": "address of the policy to check"
+        }
+      },
+      "owner()": {
+        "details": "Returns the address of the current owner."
+      },
+      "removePolicy(address)": {
+        "params": {
+          "policy": "address of policy to remove"
+        }
+      },
+      "renounceOwnership()": {
+        "details": "Leaves the contract without owner. It will not be possible to call `onlyOwner` functions. Can only be called by the current owner. NOTE: Renouncing ownership will leave the contract without an owner, thereby disabling any functionality that is only available to the owner."
+      },
+      "transferOwnership(address)": {
+        "details": "Transfers ownership of the contract to a new account (`newOwner`). Can only be called by the current owner."
+      },
+      "viewWhitelistedPolicies(uint256,uint256)": {
+        "params": {
+          "cursor": "cursor",
+          "size": "size"
+        }
+      }
+    },
+    "title": "PolicyManager",
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {
+      "addPolicy(address)": {
+        "notice": "Add matching policy"
+      },
+      "isPolicyWhitelisted(address)": {
+        "notice": "Returns if a policy has been added"
+      },
+      "removePolicy(address)": {
+        "notice": "Remove matching policy"
+      },
+      "viewCountWhitelistedPolicies()": {
+        "notice": "View number of whitelisted policies"
+      },
+      "viewWhitelistedPolicies(uint256,uint256)": {
+        "notice": "See whitelisted policies"
+      }
+    },
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [
+      {
+        "astId": 1291,
+        "contract": "contracts/PolicyManager.sol:PolicyManager",
+        "label": "_owner",
+        "offset": 0,
+        "slot": "0",
+        "type": "t_address"
+      },
+      {
+        "astId": 14108,
+        "contract": "contracts/PolicyManager.sol:PolicyManager",
+        "label": "_whitelistedPolicies",
+        "offset": 0,
+        "slot": "1",
+        "type": "t_struct(AddressSet)8754_storage"
+      }
+    ],
+    "types": {
+      "t_address": {
+        "encoding": "inplace",
+        "label": "address",
+        "numberOfBytes": "20"
+      },
+      "t_array(t_bytes32)dyn_storage": {
+        "base": "t_bytes32",
+        "encoding": "dynamic_array",
+        "label": "bytes32[]",
+        "numberOfBytes": "32"
+      },
+      "t_bytes32": {
+        "encoding": "inplace",
+        "label": "bytes32",
+        "numberOfBytes": "32"
+      },
+      "t_mapping(t_bytes32,t_uint256)": {
+        "encoding": "mapping",
+        "key": "t_bytes32",
+        "label": "mapping(bytes32 => uint256)",
+        "numberOfBytes": "32",
+        "value": "t_uint256"
+      },
+      "t_struct(AddressSet)8754_storage": {
+        "encoding": "inplace",
+        "label": "struct EnumerableSet.AddressSet",
+        "members": [
+          {
+            "astId": 8753,
+            "contract": "contracts/PolicyManager.sol:PolicyManager",
+            "label": "_inner",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_struct(Set)8439_storage"
+          }
+        ],
+        "numberOfBytes": "64"
+      },
+      "t_struct(Set)8439_storage": {
+        "encoding": "inplace",
+        "label": "struct EnumerableSet.Set",
+        "members": [
+          {
+            "astId": 8434,
+            "contract": "contracts/PolicyManager.sol:PolicyManager",
+            "label": "_values",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_array(t_bytes32)dyn_storage"
+          },
+          {
+            "astId": 8438,
+            "contract": "contracts/PolicyManager.sol:PolicyManager",
+            "label": "_indexes",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_mapping(t_bytes32,t_uint256)"
+          }
+        ],
+        "numberOfBytes": "64"
+      },
+      "t_uint256": {
+        "encoding": "inplace",
+        "label": "uint256",
+        "numberOfBytes": "32"
+      }
+    }
+  }
+}

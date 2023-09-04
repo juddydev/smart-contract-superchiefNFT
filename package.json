@@ -38,6 +38,7 @@
     "verify:avax": "npx hardhat upload:batch --network avax --contracts",
     "verify:avax_test": "npx hardhat upload:batch --network avax_test --contracts",
     "verifyAll:avax_test": "npx hardhat upload:all --network avax_test",
+    "contracts:avax": "npx hardhat contracts --network avax",
     "contracts:avax_test": "npx hardhat contracts --network avax_test",
     "test": "npm-run-all test:hh",
     "test:forge": "./forge_test/test.sh",
