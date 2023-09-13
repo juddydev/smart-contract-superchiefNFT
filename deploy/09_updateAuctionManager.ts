@@ -8,7 +8,7 @@ const func: DeployFunction = async (hre) => {
   const implement = await deploy(AuctionManager__factory);
 
   const proxy = await connect("AuctionManagerProxy");
-  const contract = ITransparentUpgradeableProxy__factory.connect(proxy.address, accounts.vault);
+  const contract = ITransparentUpgradeableProxy__factory.connect(proxy.address, accounts.bob);
 
   const tx = await contract.upgradeTo(implement.address);
   await tx.wait();
