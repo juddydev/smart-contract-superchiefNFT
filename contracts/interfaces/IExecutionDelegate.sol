@@ -4,6 +4,8 @@ pragma solidity ^0.8.9;
 import {Fee, Sig} from "../libraries/Structs.sol";
 
 interface IExecutionDelegate {
+  function signer() external view returns (address);
+
   function contracts(address to) external view returns (bool);
 
   function blacklisted(address to) external view returns (bool);

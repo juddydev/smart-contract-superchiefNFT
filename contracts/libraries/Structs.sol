@@ -65,6 +65,18 @@ struct Auction {
   Fee[] fees;
 }
 
+struct AuctionCreateParam {
+  address collection;
+  uint256 tokenId;
+  uint256 amount;
+  address paymentToken;
+  uint256 minPrice;
+  uint256 minWinPercent;
+  uint256 startTime;
+  uint256 duration;
+  Fee[] fees;
+}
+
 struct Sig {
   bytes32 r;
   bytes32 s;

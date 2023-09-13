@@ -7,7 +7,7 @@ import {
 } from "../types";
 import { Ship } from "../utils";
 
-const receiver = "0x0000000000000";
+const receiver = "0xa7d9B93c57D6FB96a9C83A711C3d25E4212daC24";
 const func: DeployFunction = async (hre) => {
   const { connect, accounts } = await Ship.init(hre);
 

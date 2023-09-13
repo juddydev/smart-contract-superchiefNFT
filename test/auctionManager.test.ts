@@ -11,7 +11,8 @@ import {
   MockERC721,
   MockERC721__factory,
 } from "../types";
-import { parseUnits, solidityKeccak256 } from "ethers/lib/utils";
+import { arrayify, parseUnits, solidityKeccak256, splitSignature } from "ethers/lib/utils";
+import { FeeStruct } from "../types/contracts/AuctionManage.sol/AuctionManager";
 
 chai.use(solidity);
 const { expect } = chai;
@@ -22,6 +23,7 @@ let token: MockERC20;
 let auctionManager: AuctionManager;
 
 let deployer: SignerWithAddress;
+let signer: SignerWithAddress;
 let alice: SignerWithAddress;
 let bob: SignerWithAddress;
 
@@ -39,11 +41,35 @@ const setup = deployments.createFixture(async (hre) => {
   };
 });
 
+const signToCreate = async (
+  sender: string,
+  collection: string,
+  tokenId: number,
+  amount: number,
+  fees: FeeStruct[],
+) => {
+  let hash = solidityKeccak256(
+    ["address", "address", "uint256", "uint256"],
+    [sender, collection, tokenId, amount],
+  );
+  for (const fee of fees) {
+    hash = solidityKeccak256(["bytes32", "uint16", "address"], [hash, fee.rate, fee.recipient]);
+  }
+  const sig = await signer.signMessage(arrayify(hash));
+  const { r, s, v } = splitSignature(sig);
+  return {
+    r,
+    s,
+    v,
+  };
+};
+
 describe("AuctionManager test", () => {
   before(async () => {
     const { accounts } = await setup();
 
     deployer = accounts.deployer;
+    signer = accounts.signer;
     alice = accounts.alice;
     bob = accounts.bob;
 
@@ -75,17 +101,31 @@ describe("AuctionManager test", () => {
       [deployer.address, nft.address, 1, token.address, parseUnits("1"), 100],
     );
     const currentTime = await getTime();
+    const sign = await signToCreate(deployer.address, nft.address, 1, 1, [
+      {
+        rate: 100,
+        recipient: alice.address,
+      },
+    ]);
     await expect(
       auctionManager.createAuction(
-        nft.address,
-        1,
-        1,
-        token.address,
-        parseUnits("1"),
-        105,
-        currentTime,
-        24 * 60 * 60,
-        [],
+        {
+          collection: nft.address,
+          tokenId: 1,
+          amount: 1,
+          paymentToken: token.address,
+          minPrice: parseUnits("1"),
+          minWinPercent: 105,
+          startTime: currentTime,
+          duration: 24 * 60 * 60,
+          fees: [
+            {
+              rate: 100,
+              recipient: alice.address,
+            },
+          ],
+        },
+        sign,
       ),
     ).to.emit(auctionManager, "NewAuction");
 
@@ -152,17 +192,31 @@ describe("AuctionManager test", () => {
       [deployer.address, nft.address, 2, token.address, parseUnits("1"), 150],
     );
     const currentTime = await getTime();
+    const sign = await signToCreate(deployer.address, nft.address, 2, 1, [
+      {
+        rate: 100,
+        recipient: alice.address,
+      },
+    ]);
     await expect(
       auctionManager.createAuction(
-        nft.address,
-        2,
-        1,
-        token.address,
-        parseUnits("1"),
-        105,
-        currentTime,
-        24 * 60 * 60,
-        [],
+        {
+          collection: nft.address,
+          tokenId: 2,
+          amount: 1,
+          paymentToken: token.address,
+          minPrice: parseUnits("1"),
+          minWinPercent: 105,
+          startTime: currentTime,
+          duration: 24 * 60 * 60,
+          fees: [
+            {
+              rate: 100,
+              recipient: alice.address,
+            },
+          ],
+        },
+        sign,
       ),
     ).to.emit(auctionManager, "NewAuction");
 

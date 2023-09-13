@@ -12,7 +12,7 @@ import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/U
 
 import {IExecutionDelegate} from "./interfaces/IExecutionDelegate.sol";
 import {ReentrancyGuard} from "./libraries/ReentrancyGuard.sol";
-import {AssetType, Auction, Fee} from "./libraries/Structs.sol";
+import {AssetType, Auction, AuctionCreateParam, Fee, Sig} from "./libraries/Structs.sol";
 
 /**
  * @title English Auction Manager Contract
@@ -45,6 +45,7 @@ contract AuctionManager is
     uint256 duration,
     Fee[] fees
   );
+
   /// @dev emit this event when auction started
   event AuctionStarted(bytes32 indexed id, uint256 startTime, uint256 endTime);
   /// @dev emit this event when new bid added
@@ -73,73 +74,103 @@ contract AuctionManager is
   function _authorizeUpgrade(address) internal override onlyOwner {}
 
   /**
-   * @notice create auction
-   * @param _collection address of collection
-   * @param _tokenId token id of nft
-   * @param _amount amount of nft
-   * @param _paymentToken address of bid token
-   * @param _minPrice minimum price of bid
-   * @param _minWinPercent minimum win percent
-   * @param _startTime start time of auction
-   * @param _duration duration of auction
-   * @param _fees fee data
+   * @dev validate signature of contract owner
+   * @param sender address of sender
+   * @param sig sign of owner
    */
-  function createAuction(
-    address _collection,
-    uint256 _tokenId,
-    uint256 _amount,
-    address _paymentToken,
-    uint256 _minPrice,
-    uint256 _minWinPercent,
-    uint256 _startTime,
-    uint256 _duration,
-    Fee[] memory _fees
-  ) external {
+  function validateCreateSign(
+    address sender,
+    address collection,
+    uint256 tokenId,
+    uint256 amount,
+    Fee[] memory fees,
+    Sig calldata sig
+  ) internal view returns (bool) {
+    bytes32 messageHash = keccak256(abi.encodePacked(sender, collection, tokenId, amount));
+    for (uint256 i = 0; i < fees.length; i++) {
+      messageHash = keccak256((abi.encodePacked(messageHash, fees[i].rate, fees[i].recipient)));
+    }
+
+    bytes32 ethSignedMessageHash = keccak256(
+      abi.encodePacked("\x19Ethereum Signed Message:\n32", messageHash)
+    );
+
+    return executionDelegate.signer() == ecrecover(ethSignedMessageHash, sig.v, sig.r, sig.s);
+  }
+
+  /**
+   * @notice create auction
+   * @param _param auction params
+   * @param _sig backend signature to validate fee
+   */
+  function createAuction(AuctionCreateParam memory _param, Sig calldata _sig) external {
+    require(
+      validateCreateSign(
+        msg.sender,
+        _param.collection,
+        _param.tokenId,
+        _param.amount,
+        _param.fees,
+        _sig
+      ),
+      "Acution: invalid signature"
+    );
     AssetType assetType;
-    if (IERC165(_collection).supportsInterface(type(IERC721).interfaceId)) {
-      require(_amount == 1, "Auction: invalid token amount");
+    if (IERC165(_param.collection).supportsInterface(type(IERC721).interfaceId)) {
+      require(_param.amount == 1, "Auction: invalid token amount");
       assetType = AssetType.ERC721;
-    } else if (IERC165(_collection).supportsInterface(type(IERC1155).interfaceId)) {
+    } else if (IERC165(_param.collection).supportsInterface(type(IERC1155).interfaceId)) {
       assetType = AssetType.ERC1155;
     } else {
       revert("Auction: invalid collection address");
     }
 
     // calculate id of auction
-    bytes32 id = _calculateHash(_collection, _tokenId, _paymentToken, _minPrice);
+    bytes32 id = _calculateHash(
+      _param.collection,
+      _param.tokenId,
+      _param.paymentToken,
+      _param.minPrice
+    );
 
     Auction storage auction = auctions[id];
     auction.assetType = assetType;
-    auction.collection = _collection;
-    auction.tokenId = _tokenId;
-    auction.paymentToken = _paymentToken;
-    auction.minPrice = _minPrice;
-    auction.startTime = _startTime;
-    auction.duration = _duration;
-    auction.minWinPercent = _minWinPercent;
-    auction.amount = _amount;
+    auction.collection = _param.collection;
+    auction.tokenId = _param.tokenId;
+    auction.paymentToken = _param.paymentToken;
+    auction.minPrice = _param.minPrice;
+    auction.startTime = _param.startTime;
+    auction.duration = _param.duration;
+    auction.minWinPercent = _param.minWinPercent;
+    auction.amount = _param.amount;
     auction.owner = msg.sender;
 
-    for (uint256 i = 0; i < _fees.length; i++) {
-      auction.fees.push(_fees[i]);
+    for (uint256 i = 0; i < _param.fees.length; i++) {
+      auction.fees.push(_param.fees[i]);
     }
 
     // lock asset to auction contract
     if (assetType == AssetType.ERC721) {
-      IERC721(_collection).safeTransferFrom(msg.sender, address(this), _tokenId);
+      IERC721(_param.collection).safeTransferFrom(msg.sender, address(this), _param.tokenId);
     } else {
-      IERC1155(_collection).safeTransferFrom(msg.sender, address(this), _tokenId, 1, "");
+      IERC1155(_param.collection).safeTransferFrom(
+        msg.sender,
+        address(this),
+        _param.tokenId,
+        _param.amount,
+        ""
+      );
     }
 
     emit NewAuction(
       id,
-      _collection,
-      _paymentToken,
-      _tokenId,
-      _amount,
-      _minPrice,
-      _startTime,
-      _duration,
+      _param.collection,
+      _param.paymentToken,
+      _param.tokenId,
+      _param.amount,
+      _param.minPrice,
+      _param.startTime,
+      _param.duration,
       auction.fees
     );
   }
