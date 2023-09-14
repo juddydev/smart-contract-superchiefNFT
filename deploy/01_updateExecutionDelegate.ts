@@ -12,7 +12,12 @@ const func: DeployFunction = async (hre) => {
   const implement = await deploy(ExecutionDelegate__factory);
 
   const proxy = await connect("ExecutionDelegateProxy");
-  const contract = ITransparentUpgradeableProxy__factory.connect(proxy.address, accounts.vault);
+  let contract;
+  if (hre.network.tags.test) {
+    contract = ITransparentUpgradeableProxy__factory.connect(proxy.address, accounts.bob);
+  } else {
+    contract = ITransparentUpgradeableProxy__factory.connect(proxy.address, accounts.vault);
+  }
 
   const tx = await contract.upgradeTo(implement.address);
   await tx.wait();
