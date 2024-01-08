@@ -82,3 +82,13 @@ struct Sig {
   bytes32 s;
   uint8 v;
 }
+
+struct EditionConfig {
+  uint256 price;
+  uint128 startTime;
+  uint128 endTime;
+  uint64 maxSupply;
+  uint64 txMinLimit;
+  uint64 txMaxLimit;
+  uint64 walletLimit;
+}
